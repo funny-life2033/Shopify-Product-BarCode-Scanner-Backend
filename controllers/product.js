@@ -28,7 +28,9 @@ const getDetails = async (req, res) => {
     console.log("result: ", data.results[0]);
 
     const [artist, title] = data.results[0]["title"].split(" - ");
-    const genre = data.results[0]["genre"];
+    const genre = data.results[0]["genre"].map((genre) =>
+      genre === "Rock" || genre === "Pop" ? "Rock & Pop" : genre
+    );
     const year = data.results[0]["year"];
     const recordLabel = data.results[0]["label"];
     const format = data.results[0]["format"].map((format) =>
@@ -90,4 +92,20 @@ const upload = async (req, res) => {
   }
 };
 
-module.exports = { getDetails, upload };
+const getProducts = async (req, res) => {
+  const shopify = new Shopify({
+    shopName: process.env.SHOP_NAME,
+    apiKey: process.env.SHOPIFY_API_KEY,
+    password: process.env.SHOPIFY_API_PASSWORD,
+  });
+
+  try {
+    const products = await shopify.product.list();
+    console.log("products: ", products);
+  } catch (error) {
+    console.log("error: ", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+module.exports = { getDetails, upload, getProducts };
