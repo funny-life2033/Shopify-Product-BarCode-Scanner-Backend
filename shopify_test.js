@@ -21,12 +21,19 @@ const shopify = new Shopify({
 //   .then((res) => console.log("res: ", res))
 //   .catch((err) => console.log("err: ", err));
 
+// shopify.product
+//   .create({
+//     title: "New test product",
+//     product_type: "Cassettes",
+//     vendor: "K.I.Z.",
+//     variants: [{ price: "12.00" }],
+//   })
+//   .then((res) => console.log("res: ", res))
+//   .catch((err) => console.log("err: ", err));
+
 shopify.product
-  .create({
-    title: "New test product",
-    product_type: "Cassettes",
-    vendor: "K.I.Z.",
-    variants: [{ price: "12.00" }],
+  .update(9528741331226, {
+    title: "Mexicano 777 - God's Assassins - 20020",
   })
   .then((res) => console.log("res: ", res))
   .catch((err) => console.log("err: ", err));
