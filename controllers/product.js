@@ -243,6 +243,14 @@ const updateProduct = async (req, res) => {
   }
 };
 
+const getProductStructure = async (req, res) => {
+  let details = {};
+  for (let field of detailFields) {
+    details[field.name] = { ...field };
+  }
+  return res.json({ message: "Success!", details });
+};
+
 const getProduct = async (req, res) => {
   const authHeader = req.get("Authorization");
   const token = authHeader.split(" ")[1];
@@ -355,4 +363,5 @@ module.exports = {
   removeProduct,
   getProduct,
   updateProduct,
+  getProductStructure,
 };

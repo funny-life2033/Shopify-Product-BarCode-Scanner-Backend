@@ -31,9 +31,9 @@ const shopify = new Shopify({
 //   .then((res) => console.log("res: ", res))
 //   .catch((err) => console.log("err: ", err));
 
-shopify.product
-  .update(9528741331226, {
-    title: "Mexicano 777 - God's Assassins - 20020",
-  })
-  .then((res) => console.log("res: ", res))
-  .catch((err) => console.log("err: ", err));
+// shopify.product
+//   .update(9528741331226, {
+//     title: "Mexicano 777 - God's Assassins - 20020",
+//   })
+//   .then((res) => console.log("res: ", res))
+//   .catch((err) => console.log("err: ", err));

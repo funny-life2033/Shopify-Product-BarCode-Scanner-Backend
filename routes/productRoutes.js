@@ -6,6 +6,7 @@ const {
   removeProduct,
   getProduct,
   updateProduct,
+  getProductStructure,
 } = require("../controllers/product");
 
 const router = express.Router();
@@ -14,6 +15,7 @@ router.post("/details", getDetails);
 router.post("/upload", upload);
 router.get("/", getProducts);
 router.get("/:productId", getProduct);
+router.get("/productStructure", getProductStructure);
 router.post("/update/:productId", updateProduct);
 router.delete("/:productId", removeProduct);
 
