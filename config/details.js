@@ -120,8 +120,9 @@ module.exports = [
   {
     name: "type",
     label: "Type",
-    type: "single_line_text_field",
+    type: "list.single_line_text_field",
     isMetafield: true,
+    isMultiSelect: true,
     options: [
       "LP",
       "Double LP",
@@ -136,8 +137,9 @@ module.exports = [
   {
     name: "speed",
     label: "Speed",
-    type: "single_line_text_field",
+    type: "list.single_line_text_field",
     isMetafield: true,
+    isMultiSelect: true,
     options: ["33 RPM", "45 RPM", "78 RPM"],
   },
   {
