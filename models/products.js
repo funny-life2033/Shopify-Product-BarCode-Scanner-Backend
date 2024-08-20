@@ -12,7 +12,6 @@ const productsSchema = new mongoose.Schema({
   },
   discogsId: {
     type: String,
-    required: true,
   },
 });
 
