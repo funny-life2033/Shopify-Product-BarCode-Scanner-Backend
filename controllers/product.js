@@ -123,6 +123,7 @@ const getDetails = async (req, res) => {
 
 const upload = async (req, res) => {
   const productDetailsList = req.body;
+  // console.log(JSON.stringify(productDetailsList, null, 2));
   const authHeader = req.get("Authorization");
   const token = authHeader.split(" ")[1];
   const decodedToken = jwt.verify(token, "secret");
@@ -198,9 +199,22 @@ const upload = async (req, res) => {
 const updateProduct = async (req, res) => {
   const productId = req.params.productId;
   const { key, detail } = req.body;
+
   let updatingData = {
     variants: [{ inventory_management: "shopify" }],
   };
+  try {
+    let variants = (await shopify.product.get(productId, "variants"))[
+      "variants"
+    ][0];
+
+    for (let field of detailFields) {
+      if (field.isVariants) {
+        updatingData.variants[0][field.name] = variants[field.name];
+      }
+    }
+  } catch (error) {}
+
   let metafield = null;
 
   detailFields.forEach((field) => {
@@ -216,6 +230,7 @@ const updateProduct = async (req, res) => {
           id: detail["id"],
           product_id: productId,
           type: detail["type"],
+          name: field.name,
         };
       } else if (field["isVariants"]) {
         updatingData["variants"][0][field.name] = detail["value"];
@@ -230,10 +245,34 @@ const updateProduct = async (req, res) => {
   });
 
   try {
-    await shopify.product.update(productId, updatingData);
-
     if (metafield) {
-      await shopify.metafield.update(metafield.id, { value: metafield.value });
+      if (metafield.id) {
+        await shopify.metafield.update(metafield.id, {
+          value: metafield.value,
+        });
+      } else {
+        console.log(
+          JSON.stringify(
+            {
+              product_id: metafield.product_id,
+              key: metafield.name,
+              value: metafield.value,
+              type: metafield.type,
+            },
+            null,
+            2
+          )
+        );
+        await shopify.metafield.create({
+          product_id: metafield.product_id,
+          key: metafield.name,
+          value: metafield.value,
+          type: metafield.type,
+          namespace: "custom",
+        });
+      }
+    } else {
+      await shopify.product.update(productId, updatingData);
     }
 
     return res.json({ message: "Successfully updated!" });
