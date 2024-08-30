@@ -6,34 +6,13 @@ const shopify = new Shopify({
   accessToken: process.env.SHOPIFY_API_TOKEN,
 });
 
-// shopify.product
-//   .list({})
-//   .then((res) => console.log("res: ", res))
-//   .catch((err) => console.log("err: ", err));
+let ids =
+  "9555084378394,9555070714138,9555071172890,9555062423834,9555056165146,9555080937754,9555051610394,9555082674458,9555085787418,9555071992090,9555082019098,9555070157082,9555050725658,9555086999834,9555088671002,9555052691738,9555062882586,9555063734554,9555061702938,9555086377242,9555079495962,9555065078042,9555083231514,9555091325210,9555076383002,9555088179482,9555063537946,9555090964762,9555058000154,9555077136666,9555078250778,9555069305114,9555090047258,9555069501722,9555077890330,9555072287002,9555068780826,9555065733402,9555050397978,9555074253082,9555067797786,9555090506010,9555066913050,9555064062234,9555089359130,9555078676762,9555075039514,9555126878490,9555119178010,9555114262810";
 
-// shopify.metafield
-//   .list({
-//     metafield: {
-//       owner_resource: "product",
-//       owner_id: "9493177172250",
-//     },
-//   })
-//   .then((res) => console.log("res: ", res))
-//   .catch((err) => console.log("err: ", err));
-
-// shopify.product
-//   .create({
-//     title: "New test product",
-//     product_type: "Cassettes",
-//     vendor: "K.I.Z.",
-//     variants: [{ price: "12.00" }],
-//   })
-//   .then((res) => console.log("res: ", res))
-//   .catch((err) => console.log("err: ", err));
-
-// shopify.product
-//   .update(9528741331226, {
-//     title: "Mexicano 777 - God's Assassins - 20020",
-//   })
-//   .then((res) => console.log("res: ", res))
-//   .catch((err) => console.log("err: ", err));
+shopify.product
+  .list({
+    ids,
+    fields: "id,product_type",
+  })
+  .then((res) => console.log("res: ", res, res.length, ids.split(",").length))
+  .catch((err) => console.log("err: ", err));
