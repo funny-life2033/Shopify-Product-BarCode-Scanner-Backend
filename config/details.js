@@ -109,6 +109,13 @@ module.exports = [
     options: ["Sealed", "NM", "EX", "VG++", "VG+", "VG", "New", "Used"],
   },
   {
+    name: "condition",
+    label: "Condition",
+    type: "list.single_line_text_field",
+    isMetafield: true,
+    options: ["New", "Used"],
+  },
+  {
     name: "product_size",
     label: "Size",
     type: "single_line_text_field",
