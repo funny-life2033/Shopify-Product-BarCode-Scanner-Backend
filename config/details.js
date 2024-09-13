@@ -111,7 +111,7 @@ module.exports = [
   {
     name: "condition",
     label: "Condition",
-    type: "list.single_line_text_field",
+    type: "single_line_text_field",
     isMetafield: true,
     options: ["New", "Used"],
   },

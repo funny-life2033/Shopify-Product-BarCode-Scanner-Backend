@@ -264,7 +264,8 @@ const updateProduct = async (req, res) => {
           )
         );
         await shopify.metafield.create({
-          product_id: metafield.product_id,
+          owner_id: metafield.product_id,
+          owner_resource: "product",
           key: metafield.name,
           value: metafield.value,
           type: metafield.type,
