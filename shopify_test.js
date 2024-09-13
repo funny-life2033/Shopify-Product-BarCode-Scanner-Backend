@@ -102,7 +102,7 @@ const start = async () => {
     let metafields = await getMetafields(product.id);
     await updateConditionMetafield({ ...metafields, product_id: product.id });
     console.log(product.id, "is updated");
-    await sleep(3000);
+    await sleep(100);
   }
 };
 
