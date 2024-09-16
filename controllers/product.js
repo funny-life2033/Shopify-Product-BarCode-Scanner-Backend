@@ -236,8 +236,10 @@ const updateProduct = async (req, res) => {
       } else if (field["isVariants"]) {
         updatingData["variants"][0][field.name] = detail["value"];
       } else if (field.name === "images") {
-        updatingData[field.name] = detail["value"].map((image) =>
-          image["id"] ? { id: image["id"] } : image
+        updatingData[field.name] = detail["value"].map((image, index) =>
+          image["id"]
+            ? { id: image["id"], position: index + 1 }
+            : { ...image, position: index + 1 }
         );
       } else {
         updatingData[field.name] = detail["value"];
