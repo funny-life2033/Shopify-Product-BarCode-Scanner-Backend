@@ -54,6 +54,7 @@ const getDetails = async (req, res) => {
         title: `${artist} - ${title}${
           release_year ? ` - ${release_year}` : ""
         }`,
+        product_title: title,
         upc_: upc,
         vendor,
         genre_,
@@ -160,7 +161,7 @@ const upload = async (req, res) => {
           creatingData["metafields"] = [
             ...creatingData["metafields"],
             {
-              key: details[field.name]["name"],
+              key: details[field.name]["key"],
               value: value,
               type: details[field.name]["type"],
               namespace: "custom",
@@ -210,7 +211,7 @@ const updateProduct = async (req, res) => {
 
     for (let field of detailFields) {
       if (field.isVariants) {
-        updatingData.variants[0][field.name] = variants[field.name];
+        updatingData.variants[0][field.name] = variants[field.key];
       }
     }
   } catch (error) {}
@@ -230,7 +231,7 @@ const updateProduct = async (req, res) => {
           id: detail["id"],
           product_id: productId,
           type: detail["type"],
-          name: field.name,
+          key: field.key,
         };
       } else if (field["isVariants"]) {
         updatingData["variants"][0][field.name] = detail["value"];
@@ -251,22 +252,10 @@ const updateProduct = async (req, res) => {
           value: metafield.value,
         });
       } else {
-        console.log(
-          JSON.stringify(
-            {
-              product_id: metafield.product_id,
-              key: metafield.name,
-              value: metafield.value,
-              type: metafield.type,
-            },
-            null,
-            2
-          )
-        );
         await shopify.metafield.create({
           owner_id: metafield.product_id,
           owner_resource: "product",
-          key: metafield.name,
+          key: metafield.key,
           value: metafield.value,
           type: metafield.type,
           namespace: "custom",
@@ -334,7 +323,7 @@ const getProduct = async (req, res) => {
 
     if (field.isMetafield) {
       let metafield = metafields.find(
-        (metafield) => metafield["key"] === field["name"]
+        (metafield) => metafield["key"] === field["key"]
       );
 
       if (metafield) {
@@ -342,9 +331,9 @@ const getProduct = async (req, res) => {
         details[field.name]["id"] = metafield["id"];
       }
     } else if (field.isVariants) {
-      details[field.name]["value"] = product["variants"][0][field.name];
+      details[field.name]["value"] = product["variants"][0][field.key];
     } else {
-      details[field.name]["value"] = product[field.name];
+      details[field.name]["value"] = product[field.key];
     }
 
     if (
