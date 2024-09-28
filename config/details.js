@@ -42,6 +42,7 @@ module.exports = [
       "LaserDisc",
       "mws_fee_generated",
       "mws_fee_generated_clone",
+      "Wholesale",
     ],
   },
   {
@@ -111,6 +112,30 @@ module.exports = [
     product_type: "All",
   },
   {
+    name: "lot_",
+    key: "lot_",
+    label: "Lot #",
+    type: "single_line_text_field",
+    isMetafield: true,
+    product_type: ["Wholesale"],
+  },
+  {
+    name: "quantity_in_lot",
+    key: "quantity_in_lot",
+    label: "Quantity in Lot",
+    type: "single_line_text_field",
+    isMetafield: true,
+    product_type: ["Wholesale"],
+  },
+  {
+    name: "lot_product_type",
+    key: "lot_product_type",
+    label: "Lot Product Type",
+    type: "single_line_text_field",
+    isMetafield: true,
+    product_type: ["Wholesale"],
+  },
+  {
     name: "product_title",
     key: "title",
     label: "Product Title",
@@ -124,6 +149,7 @@ module.exports = [
       "Books",
       "Art",
       "LaserDisc",
+      "Wholesale",
     ],
   },
   {
@@ -140,7 +166,14 @@ module.exports = [
     label: "Artist",
     type: "single_line_text_field",
     isMetafield: true,
-    product_type: ["Vinyl", "CDs", "cassettes", "Art", "LaserDisc"],
+    product_type: [
+      "Vinyl",
+      "CDs",
+      "cassettes",
+      "Art",
+      "LaserDisc",
+      "Wholesale",
+    ],
   },
   {
     name: "genre_",
@@ -180,7 +213,7 @@ module.exports = [
     isMetafield: true,
     isMultiSelect: true,
     options: ["Sealed", "NM", "EX", "VG++", "VG+", "VG", "New", "Used"],
-    product_type: ["Vinyl", "CDs", "cassettes", "LaserDisc"],
+    product_type: ["Vinyl", "CDs", "cassettes", "LaserDisc", "Wholesale"],
   },
   {
     name: "art_type",
@@ -261,7 +294,7 @@ module.exports = [
     label: "Catalog #",
     type: "single_line_text_field",
     isMetafield: true,
-    product_type: ["Vinyl", "CDs", "cassettes", "LaserDisc"],
+    product_type: ["Vinyl", "CDs", "cassettes", "LaserDisc", "Wholesale"],
   },
   {
     name: "record_label",
@@ -269,7 +302,7 @@ module.exports = [
     label: "Record Label",
     type: "single_line_text_field",
     isMetafield: true,
-    product_type: ["Vinyl", "CDs", "cassettes", "LaserDisc"],
+    product_type: ["Vinyl", "CDs", "cassettes", "LaserDisc", "Wholesale"],
   },
   {
     name: "genre",
@@ -277,7 +310,7 @@ module.exports = [
     label: "Genre",
     type: "single_line_text_field",
     isMetafield: true,
-    product_type: ["DVDs & Blu-Rays"],
+    product_type: ["DVDs & Blu-Rays", "Wholesale"],
   },
   {
     name: "rating",
@@ -352,7 +385,7 @@ module.exports = [
     label: "Brand",
     type: "single_line_text_field",
     isMetafield: true,
-    product_type: ["Blank Media"],
+    product_type: ["Blank Media", "Wholesale"],
   },
   {
     name: "model",
@@ -376,7 +409,7 @@ module.exports = [
     label: "Country of Manufacture",
     type: "single_line_text_field",
     isMetafield: true,
-    product_type: ["Vinyl", "CDs", "cassettes", "LaserDisc"],
+    product_type: ["Vinyl", "CDs", "cassettes", "LaserDisc", "Wholesale"],
   },
   {
     name: "autographed",
@@ -385,6 +418,13 @@ module.exports = [
     type: "single_line_text_field",
     isMetafield: true,
     options: ["Yes", "No"],
-    product_type: ["Vinyl", "CDs", "cassettes", "Books", "LaserDisc"],
+    product_type: [
+      "Vinyl",
+      "CDs",
+      "cassettes",
+      "Books",
+      "LaserDisc",
+      "Wholesale",
+    ],
   },
 ];
