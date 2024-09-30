@@ -4,6 +4,7 @@ const Shopify = require("shopify-api-node");
 const jwt = require("jsonwebtoken");
 const Product = require("../models/products");
 const User = require("../models/users");
+const WholesaleNo = require("../models/wholesaleNo");
 require("dotenv").config();
 
 const shopify = new Shopify({
@@ -150,9 +151,26 @@ const upload = async (req, res) => {
       ],
     };
 
-    detailFields.forEach((field) => {
-      if (details[field.name]["value"]) {
-        let value = details[field.name]["value"];
+    let productTitle;
+
+    if (details["product_type"]["value"] === "Wholesale") {
+      const [no] = await WholesaleNo.find({});
+      if (no) {
+        productTitle = `Lot #${(no.no + 1).toString().padStart(5, "0")}`;
+        await WholesaleNo.findByIdAndUpdate(no.id, { no: no.no + 1 });
+      } else {
+        productTitle = "Lot #00071";
+        await WholesaleNo.create({ no: 71 });
+      }
+    }
+
+    for (let field of detailFields) {
+      let value = details[field.name]["value"];
+
+      if (field.key === "title") {
+        value = productTitle;
+      }
+      if (value) {
         if (Array.isArray(value)) {
           value = value.filter((value) => value && value !== "");
           value = JSON.stringify(value);
@@ -162,19 +180,18 @@ const upload = async (req, res) => {
             ...creatingData["metafields"],
             {
               key: details[field.name]["key"],
-              value: value,
+              value,
               type: details[field.name]["type"],
               namespace: "custom",
             },
           ];
         } else if (field["isVariants"]) {
-          creatingData["variants"][0][field.name] =
-            details[field.name]["value"];
+          creatingData["variants"][0][field.name] = value;
         } else {
-          creatingData[field.name] = details[field.name]["value"];
+          creatingData[field.name] = value;
         }
       }
-    });
+    }
 
     try {
       const response = await shopify.product.create(creatingData);
@@ -387,6 +404,15 @@ const removeProduct = async (req, res) => {
   }
 };
 
+const getWholesaleTitle = async (_, res) => {
+  const [no] = await WholesaleNo.find({});
+  if (!no) return res.json({ message: "Success!", title: "Lot #00071" });
+  return res.json({
+    message: "Success!",
+    title: `Lot #${(no.no + 1).toString().padStart(5, "0")}`,
+  });
+};
+
 module.exports = {
   getDetails,
   upload,
@@ -395,4 +421,5 @@ module.exports = {
   getProduct,
   updateProduct,
   getProductStructure,
+  getWholesaleTitle,
 };

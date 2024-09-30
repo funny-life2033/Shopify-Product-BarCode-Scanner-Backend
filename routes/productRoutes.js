@@ -7,6 +7,7 @@ const {
   getProduct,
   updateProduct,
   getProductStructure,
+  getWholesaleTitle,
 } = require("../controllers/product");
 
 const router = express.Router();
@@ -18,5 +19,6 @@ router.get("/:productId", getProduct);
 router.get("/product/structure", getProductStructure);
 router.post("/update/:productId", updateProduct);
 router.delete("/:productId", removeProduct);
+router.get("/product/getWholesaleTitle", getWholesaleTitle);
 
 module.exports = router;
