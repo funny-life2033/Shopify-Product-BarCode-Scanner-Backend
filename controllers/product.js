@@ -167,7 +167,10 @@ const upload = async (req, res) => {
     for (let field of detailFields) {
       let value = details[field.name]["value"];
 
-      if (field.key === "title") {
+      if (
+        details["product_type"]["value"] === "Wholesale" &&
+        (field.key === "title" || field.key === "lot_")
+      ) {
         value = productTitle;
       }
       if (value) {
