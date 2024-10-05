@@ -1,16 +1,52 @@
 const axios = require("axios");
 const detailFields = require("../config/details");
 const Shopify = require("shopify-api-node");
+const { shopifyApi } = require("@shopify/shopify-api");
 const jwt = require("jsonwebtoken");
 const Product = require("../models/products");
 const User = require("../models/users");
 const WholesaleNo = require("../models/wholesaleNo");
+const { sleep } = require("../config/utils");
+// const fs = require("fs");
+// const path = require("path");
+require("@shopify/shopify-api/adapters/node");
 require("dotenv").config();
 
 const shopify = new Shopify({
   shopName: process.env.SHOP_NAME,
   accessToken: process.env.SHOPIFY_API_TOKEN,
 });
+
+const shopifyGraphql = shopifyApi({
+  apiKey: process.env.SHOPIFY_API_KEY,
+  apiSecretKey: process.env.SHOPIFY_API_SECRET_KEY,
+  adminApiAccessToken: process.env.SHOPIFY_API_TOKEN,
+  hostName: `${process.env.SHOP_NAME}.myshopify.com`,
+  isCustomStoreApp: true,
+  scopes: ["read_products", "write_products"],
+});
+
+const session = shopifyGraphql.session.customAppSession(
+  `${process.env.SHOP_NAME}.myshopify.com`
+);
+
+const shopifyClient = new shopifyGraphql.clients.Graphql({
+  session,
+});
+
+const saveNewWholesale = async () => {
+  const [no] = await WholesaleNo.find({});
+  let wholesaleTitle;
+  if (no) {
+    wholesaleTitle = `Lot #${(no.no + 1).toString().padStart(5, "0")}`;
+    await WholesaleNo.findByIdAndUpdate(no.id, { no: no.no + 1 });
+  } else {
+    wholesaleTitle = "Lot #00071";
+    await WholesaleNo.create({ no: 71 });
+  }
+
+  return wholesaleTitle;
+};
 
 const getDetails = async (req, res) => {
   const { upc } = req.body;
@@ -151,17 +187,10 @@ const upload = async (req, res) => {
       ],
     };
 
-    let productTitle;
+    let wholesaleTitle;
 
     if (details["product_type"]["value"] === "Wholesale") {
-      const [no] = await WholesaleNo.find({});
-      if (no) {
-        productTitle = `Lot #${(no.no + 1).toString().padStart(5, "0")}`;
-        await WholesaleNo.findByIdAndUpdate(no.id, { no: no.no + 1 });
-      } else {
-        productTitle = "Lot #00071";
-        await WholesaleNo.create({ no: 71 });
-      }
+      wholesaleTitle = await saveNewWholesale();
     }
 
     for (let field of detailFields) {
@@ -169,9 +198,9 @@ const upload = async (req, res) => {
 
       if (
         details["product_type"]["value"] === "Wholesale" &&
-        (field.key === "title" || field.key === "lot_")
+        field.key === "lot_"
       ) {
-        value = productTitle;
+        value = wholesaleTitle;
       }
       if (value) {
         if (Array.isArray(value)) {
@@ -189,9 +218,10 @@ const upload = async (req, res) => {
             },
           ];
         } else if (field["isVariants"]) {
-          creatingData["variants"][0][field.name] = value;
+          creatingData["variants"][0][field.name] =
+            details[field.name]["value"];
         } else {
-          creatingData[field.name] = value;
+          creatingData[field.name] = details[field.name]["value"];
         }
       }
     }
@@ -204,6 +234,11 @@ const upload = async (req, res) => {
         uploadedBy: user._id,
       });
       successed.push({ discogsId: details.id, id: response.id });
+      // fs.writeFileSync(
+      //   path.join(__dirname, "creating data"),
+      //   JSON.stringify(creatingData, null, 2),
+      //   "utf8"
+      // );
     } catch (error) {
       console.log("error: ", error);
       failed.push({ discogsId: details.id });
@@ -217,7 +252,7 @@ const upload = async (req, res) => {
   });
 };
 
-const updateProduct = async (req, res) => {
+const updateProductOld = async (req, res) => {
   const productId = req.params.productId;
   const { key, detail } = req.body;
 
@@ -290,6 +325,204 @@ const updateProduct = async (req, res) => {
     return res.json({ message: "Successfully updated!" });
   } catch (error) {
     console.log("error: ", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+const updateProduct = async (req, res) => {
+  const productId = req.params.productId;
+  const { productDetails } = req.body;
+
+  let updatingData = {
+    variants: [{ inventory_management: "shopify" }],
+  };
+  while (true) {
+    try {
+      let variants = (await shopify.product.get(productId, "variants"))[
+        "variants"
+      ][0];
+
+      for (let field of detailFields) {
+        if (field.isVariants) {
+          updatingData.variants[0][field.name] = variants[field.key];
+        }
+      }
+      break;
+    } catch (error) {}
+    await sleep(1000);
+  }
+  let metafields = [];
+  let deletingMetafields = [];
+
+  for (let field of detailFields) {
+    if (field["isMetafield"]) {
+      let value = productDetails[field.name]["value"];
+      if (Array.isArray(value)) {
+        value = value.filter((value) => value && value !== "");
+        value = JSON.stringify(value);
+      }
+      if (
+        productDetails["product_type"] === "Wholesale" &&
+        field.key === "lot_"
+      ) {
+        value = await saveNewWholesale();
+      }
+      if (value && value !== "") {
+        metafields.push({
+          id:
+            `gid://shopify/Metafield/${productDetails[field.name]["id"]}` ||
+            undefined,
+          key: field.key,
+          namespace: "custom",
+          type: field.type,
+          value,
+        });
+      } else {
+        deletingMetafields.push({
+          key: field.key,
+          namespace: "custom",
+          ownerId: `gid://shopify/Product/${productId}`,
+        });
+      }
+    } else if (field["isVariants"]) {
+      updatingData["variants"][0][field.name] =
+        productDetails[field.name]["value"];
+    } else if (field.name === "images") {
+      updatingData[field.name] = productDetails[field.name]["value"].map(
+        (image, index) =>
+          image["id"]
+            ? { id: image["id"], position: index + 1 }
+            : { ...image, position: index + 1 }
+      );
+    } else {
+      updatingData[field.name] = productDetails[field.name]["value"];
+    }
+  }
+
+  try {
+    await shopify.product.update(productId, updatingData);
+    const { body } = await shopifyClient.query({
+      data: {
+        query: `mutation UpdateProductWithNewMedia($input: ProductInput!, $media: [CreateMediaInput!]) {
+          productUpdate(input: $input, media: $media) {
+            userErrors {
+              field
+              message
+            }
+          }
+        }`,
+        variables: {
+          input: {
+            id: `gid://shopify/Product/${productId}`,
+            metafields,
+          },
+        },
+      },
+    });
+    if (!body.data.productUpdate.userErrors.length) {
+      const res2 = await shopifyClient.query({
+        data: {
+          query: `mutation metafieldsDelete($metafields: [MetafieldIdentifierInput!]!) {
+          metafieldsDelete(metafields: $metafields) {
+            userErrors {
+              field
+              message
+            }
+          }
+      }`,
+          variables: {
+            metafields: deletingMetafields,
+          },
+        },
+      });
+      if (!res2.body.data.productUpdate.userErrors.length) {
+        return res.json({ message: "Successfully updated!" });
+      } else {
+        console.log(
+          "deleting metafield error:",
+          res2.body.data.productUpdate.userErrors
+        );
+        return res
+          .status(400)
+          .json({ message: res2.body.data.productUpdate.userErrors[0] });
+      }
+    } else {
+      console.log(
+        "updating metafields error:",
+        body.data.productUpdate.userErrors
+      );
+      return res
+        .status(400)
+        .json({ message: body.data.productUpdate.userErrors[0] });
+    }
+  } catch (error) {
+    console.log("error: ", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+const duplicateProduct = async (req, res) => {
+  const authHeader = req.get("Authorization");
+  const token = authHeader.split(" ")[1];
+  const decodedToken = jwt.verify(token, "secret");
+  let user = await User.findOne({ username: decodedToken?.username });
+
+  const productId = req.params.productId;
+  const { productTitle } = req.body;
+
+  try {
+    const data = await shopifyClient.query({
+      data: {
+        query: `mutation DuplicateProduct($productId: ID!, $newTitle: String!, $includeImages: Boolean, $newStatus: ProductStatus) {
+          productDuplicate(productId: $productId, newTitle: $newTitle, includeImages: $includeImages, newStatus: $newStatus) {
+            newProduct {
+              id
+              title
+              productType
+              metafield(namespace: "custom", key: "lot_") {
+                id
+              }
+            }
+            userErrors {
+              field
+              message
+            }
+          }
+        }`,
+        variables: {
+          productId: `gid://shopify/Product/${productId}`,
+          newTitle: `Copy of ${productTitle}`,
+          includeImages: true,
+          newStatus: "ACTIVE",
+          synchronous: false,
+        },
+      },
+    });
+
+    let newProductId = data.body.data.productDuplicate.newProduct.id.split("/");
+    newProductId = newProductId[newProductId.length - 1];
+    await Product.create({
+      productId: newProductId,
+      uploadedBy: user._id,
+    });
+
+    if (
+      data.body.data.productDuplicate.newProduct.productType === "Wholesale"
+    ) {
+      let wholesaleTitle = await saveNewWholesale();
+      let metafieldId =
+        data.body.data.productDuplicate.newProduct.metafield.id.split("/");
+      metafieldId = metafieldId[metafieldId.length - 1];
+
+      await shopify.metafield.update(metafieldId, { value: wholesaleTitle });
+    }
+
+    res.json({
+      message: "Successfully duplicated!",
+      newProduct: { id: newProductId, title: `Copy of ${productTitle}` },
+    });
+  } catch (error) {
+    console.log(error);
     return res.status(500).json({ message: "Server error" });
   }
 };
@@ -421,6 +654,7 @@ module.exports = {
   upload,
   getProducts,
   removeProduct,
+  duplicateProduct,
   getProduct,
   updateProduct,
   getProductStructure,
