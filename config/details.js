@@ -199,6 +199,7 @@ module.exports = [
       "Holiday",
       "Classical",
       "Doo-Wop",
+      "Wholesale",
     ],
     product_type: ["Vinyl", "CDs", "cassettes", "LaserDisc"],
   },
@@ -307,7 +308,7 @@ module.exports = [
     label: "Genre",
     type: "single_line_text_field",
     isMetafield: true,
-    product_type: ["DVDs & Blu-Rays", "Wholesale"],
+    product_type: ["DVDs & Blu-Rays"],
   },
   {
     name: "rating",
