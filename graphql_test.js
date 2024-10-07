@@ -1,4 +1,5 @@
 const { shopifyApi } = require("@shopify/shopify-api");
+const details = require("./config/details");
 require("@shopify/shopify-api/adapters/node");
 require("dotenv").config();
 
@@ -22,14 +23,21 @@ const client = new shopify.clients.Graphql({
 client
   .query({
     data: `query {
-        node(id: "gid://shopify/Product/9617006690586") {
+        node(id: "gid://shopify/Product/9555054625050") {
             ... on Product {
-                metafield(namespace: "custom", key: "title") {
-                    id
+                metafields(first: 50, keys: ["custom.artist"]) {
+                    edges {
+                      node {
+                        id
+                        key
+                        type
+                        value
+                      }
+                    }
                 }
             }
         }
     }`,
   })
-  .then((res) => console.log(res.body.data))
+  .then((res) => console.log(res.body.data.node.metafields.edges))
   .catch((err) => console.log(err));

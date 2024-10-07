@@ -7,8 +7,8 @@ const Product = require("../models/products");
 const User = require("../models/users");
 const WholesaleNo = require("../models/wholesaleNo");
 const { sleep } = require("../config/utils");
-// const fs = require("fs");
-// const path = require("path");
+const fs = require("fs");
+const path = require("path");
 require("@shopify/shopify-api/adapters/node");
 require("dotenv").config();
 
@@ -88,9 +88,7 @@ const getDetails = async (req, res) => {
       let filteredData = {
         artist,
         images,
-        title: `${artist} - ${title}${
-          release_year ? ` - ${release_year}` : ""
-        }`,
+        title: "",
         product_title: title,
         upc_: upc,
         vendor,
@@ -369,9 +367,9 @@ const updateProduct = async (req, res) => {
       }
       if (value && value !== "") {
         metafields.push({
-          id:
-            `gid://shopify/Metafield/${productDetails[field.name]["id"]}` ||
-            undefined,
+          id: productDetails[field.name]["id"]
+            ? `gid://shopify/Metafield/${productDetails[field.name]["id"]}`
+            : undefined,
           key: field.key,
           namespace: "custom",
           type: field.type,
@@ -405,6 +403,9 @@ const updateProduct = async (req, res) => {
       data: {
         query: `mutation UpdateProductWithNewMedia($input: ProductInput!, $media: [CreateMediaInput!]) {
           productUpdate(input: $input, media: $media) {
+            product {
+              title
+            }
             userErrors {
               field
               message
@@ -435,16 +436,16 @@ const updateProduct = async (req, res) => {
           },
         },
       });
-      if (!res2.body.data.productUpdate.userErrors.length) {
+      if (!res2.body.data.metafieldsDelete.userErrors.length) {
         return res.json({ message: "Successfully updated!" });
       } else {
         console.log(
           "deleting metafield error:",
-          res2.body.data.productUpdate.userErrors
+          res2.body.data.metafieldsDelete.userErrors
         );
         return res
           .status(400)
-          .json({ message: res2.body.data.productUpdate.userErrors[0] });
+          .json({ message: res2.body.data.metafieldsDelete.userErrors[0] });
       }
     } else {
       console.log(
