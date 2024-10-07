@@ -7,8 +7,8 @@ const Product = require("../models/products");
 const User = require("../models/users");
 const WholesaleNo = require("../models/wholesaleNo");
 const { sleep } = require("../config/utils");
-const fs = require("fs");
-const path = require("path");
+// const fs = require("fs");
+// const path = require("path");
 require("@shopify/shopify-api/adapters/node");
 require("dotenv").config();
 
@@ -492,7 +492,7 @@ const duplicateProduct = async (req, res) => {
         }`,
         variables: {
           productId: `gid://shopify/Product/${productId}`,
-          newTitle: `Copy of ${productTitle}`,
+          newTitle: productTitle,
           includeImages: true,
           newStatus: "ACTIVE",
           synchronous: false,
@@ -520,7 +520,7 @@ const duplicateProduct = async (req, res) => {
 
     res.json({
       message: "Successfully duplicated!",
-      newProduct: { id: newProductId, title: `Copy of ${productTitle}` },
+      newProduct: { id: newProductId, title: productTitle },
     });
   } catch (error) {
     console.log(error);
