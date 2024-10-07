@@ -360,7 +360,7 @@ const updateProduct = async (req, res) => {
         value = JSON.stringify(value);
       }
       if (
-        productDetails["product_type"] === "Wholesale" &&
+        productDetails["product_type"]["value"] === "Wholesale" &&
         field.key === "lot_"
       ) {
         value = await saveNewWholesale();
