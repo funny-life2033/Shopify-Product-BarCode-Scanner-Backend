@@ -1,19 +1,5 @@
 module.exports = [
   {
-    name: "title",
-    key: "title",
-    label: "Title",
-    type: "single_line_text_field",
-    product_type: "All",
-  },
-  {
-    name: "body_html",
-    key: "body_html",
-    label: "Description",
-    type: "rich_text_field",
-    product_type: "All",
-  },
-  {
     name: "images",
     key: "images",
     label: "Images",
@@ -447,5 +433,19 @@ module.exports = [
       "LaserDisc",
       "Wholesale",
     ],
+  },
+  {
+    name: "title",
+    key: "title",
+    label: "Title",
+    type: "single_line_text_field",
+    product_type: "All",
+  },
+  {
+    name: "body_html",
+    key: "body_html",
+    label: "Description",
+    type: "rich_text_field",
+    product_type: "All",
   },
 ];
