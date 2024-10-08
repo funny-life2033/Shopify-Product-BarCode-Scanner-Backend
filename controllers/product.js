@@ -218,6 +218,10 @@ const upload = async (req, res) => {
         } else if (field["isVariants"]) {
           creatingData["variants"][0][field.name] =
             details[field.name]["value"];
+        } else if (field["key"] === "tags") {
+          if (Array.isArray(details[field.name]["value"]))
+            creatingData[field.name] = details[field.name]["value"].join(", ");
+          else creatingData[field.name] = "";
         } else {
           creatingData[field.name] = details[field.name]["value"];
         }
@@ -392,6 +396,11 @@ const updateProduct = async (req, res) => {
             ? { id: image["id"], position: index + 1 }
             : { ...image, position: index + 1 }
       );
+    } else if (field.key === "tags") {
+      if (Array.isArray(productDetails[field.name]["value"]))
+        updatingData[field.name] =
+          productDetails[field.name]["value"].join(", ");
+      else updatingData[field.name] = "";
     } else {
       updatingData[field.name] = productDetails[field.name]["value"];
     }
@@ -596,7 +605,10 @@ const getProduct = async (req, res) => {
       field.isMultiSelect &&
       typeof details[field.name]["value"] === "string"
     ) {
-      details[field.name]["value"] = JSON.parse(details[field.name]["value"]);
+      if (field.key === "tags")
+        details[field.name]["value"] = details[field.name]["value"].split(", ");
+      else
+        details[field.name]["value"] = JSON.parse(details[field.name]["value"]);
     }
   }
   return res.json({ message: "Success!", details });
