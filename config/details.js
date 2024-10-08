@@ -224,7 +224,7 @@ module.exports = [
       "Doo-Wop",
       "Wholesale",
     ],
-    product_type: ["Vinyl", "CDs", "cassettes", "LaserDisc"],
+    product_type: ["Vinyl", "CDs", "cassettes", "LaserDisc", "Wholesale"],
   },
   {
     name: "vinyl_grade",
