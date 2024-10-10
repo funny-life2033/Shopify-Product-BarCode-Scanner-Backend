@@ -627,6 +627,7 @@ const getProducts = async (req, res) => {
 
   try {
     const products = await shopify.product.list({ ids: ids.join(",") });
+    products.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
 
     for (let product of uploadedProducts) {
       if (!products.find((p) => p.id.toString() === product.productId)) {
