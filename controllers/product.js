@@ -341,7 +341,7 @@ const updateProductOld = async (req, res) => {
 
 const updateProduct = async (req, res) => {
   const productId = req.params.productId;
-  const { productDetails } = req.body;
+  const { productDetails, initialProductType } = req.body;
 
   let updatingData = {
     variants: [{ inventory_management: "shopify" }],
@@ -363,6 +363,14 @@ const updateProduct = async (req, res) => {
   }
   let metafields = [];
   let deletingMetafields = [];
+  let wholesaleTitle;
+  if (productDetails["product_type"]["value"] === "Wholesale") {
+    if (initialProductType === "Wholesale") {
+      wholesaleTitle = productDetails["lot_"]["value"];
+    } else {
+      wholesaleTitle = await saveNewWholesale();
+    }
+  }
 
   for (let field of detailFields) {
     if (field["isMetafield"]) {
@@ -371,12 +379,26 @@ const updateProduct = async (req, res) => {
         value = value.filter((value) => value && value !== "");
         value = JSON.stringify(value);
       }
-      if (
-        productDetails["product_type"]["value"] === "Wholesale" &&
-        field.key === "lot_"
-      ) {
-        value = await saveNewWholesale();
+      if (productDetails["product_type"]["value"] === "Wholesale") {
+        if (field.key === "lot_") {
+          value = wholesaleTitle;
+        }
+
+        if (field.name === "title" || field.name === "body_html") {
+          if (
+            value &&
+            productDetails["lot_"]["value"] &&
+            productDetails["lot_"]["value"] !== "" &&
+            value.includes(productDetails["lot_"]["value"])
+          ) {
+            value = value.replace(
+              productDetails["lot_"]["value"],
+              wholesaleTitle
+            );
+          }
+        }
       }
+
       if (value && value !== "") {
         metafields.push({
           id: productDetails[field.name]["id"]
