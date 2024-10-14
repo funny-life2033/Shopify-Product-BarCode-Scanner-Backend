@@ -73,15 +73,23 @@ const getDetails = async (req, res) => {
     let productDetails = data.results.map((result) => {
       let [artist, title] = result["title"].split(" - ");
       let images = [{ src: result["cover_image"] }];
-      let genre_ = result["genre"].map((genre) =>
-        genre === "Rock" || genre === "Pop" ? "Rock & Pop" : genre
-      );
+      let genre_ = [
+        ...new Set(
+          result["genre"].map((genre) =>
+            genre === "Rock" || genre === "Pop" ? "Rock & Pop" : genre
+          )
+        ),
+      ];
       let release_year = result["year"];
-      let record_label = result["label"];
-      let vendor = result["label"];
-      let product_type = result["format"].map((format) =>
-        format === "DVD" ? "DVDs" : format === "CD" ? "CDs" : format
-      );
+      let record_label = [...new Set(result["label"])];
+      let vendor = [...new Set(result["label"])];
+      let product_type = [
+        ...new Set(
+          result["format"].map((format) =>
+            format === "DVD" ? "DVDs" : format === "CD" ? "CDs" : format
+          )
+        ),
+      ];
       let country_of_manufacture = result["country"];
       let catalog = result["catno"];
 
