@@ -453,6 +453,27 @@ const updateProduct = async (req, res) => {
       JSON.stringify(product, null, 2),
       "utf8"
     );
+
+    if (product.images.length < updatingData["images"].length) {
+      fs.writeFileSync(
+        path.join(__dirname, "error productDetails"),
+        JSON.stringify(productDetails, null, 2),
+        "utf8"
+      );
+
+      fs.writeFileSync(
+        path.join(__dirname, "error updatingData"),
+        JSON.stringify(updatingData, null, 2),
+        "utf8"
+      );
+
+      fs.writeFileSync(
+        path.join(__dirname, "error updatedResult"),
+        JSON.stringify(product, null, 2),
+        "utf8"
+      );
+    }
+
     const { body } = await shopifyClient.query({
       data: {
         query: `mutation UpdateProductWithNewMedia($input: ProductInput!, $media: [CreateMediaInput!]) {
