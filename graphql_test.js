@@ -23,21 +23,20 @@ const client = new shopify.clients.Graphql({
 client
   .query({
     data: `query {
-        node(id: "gid://shopify/Product/9555054625050") {
-            ... on Product {
-                metafields(first: 50, keys: ["custom.artist"]) {
-                    edges {
-                      node {
-                        id
-                        key
-                        type
-                        value
-                      }
-                    }
-                }
+      products(first: 5) {
+        edges {
+          node {
+            title
+            metafields(first: 1, keys: ["custom.upc_"]) {
+             nodes {
+              key
+              value
+             }
             }
+          }
         }
+      }
     }`,
   })
-  .then((res) => console.log(res.body.data.node.metafields.edges))
+  .then((res) => console.log(JSON.stringify(res.body.data, null, 2)))
   .catch((err) => console.log(err));

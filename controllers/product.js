@@ -7,8 +7,8 @@ const Product = require("../models/products");
 const User = require("../models/users");
 const WholesaleNo = require("../models/wholesaleNo");
 const { sleep } = require("../config/utils");
-// const fs = require("fs");
-// const path = require("path");
+const fs = require("fs");
+const path = require("path");
 require("@shopify/shopify-api/adapters/node");
 require("dotenv").config();
 
@@ -437,7 +437,12 @@ const updateProduct = async (req, res) => {
   }
 
   try {
-    await shopify.product.update(productId, updatingData);
+    let product = await shopify.product.update(productId, updatingData);
+    fs.writeFileSync(
+      path.join(__dirname, "editing"),
+      JSON.stringify({ updatingData, product }, null, 2),
+      "utf8"
+    );
     const { body } = await shopifyClient.query({
       data: {
         query: `mutation UpdateProductWithNewMedia($input: ProductInput!, $media: [CreateMediaInput!]) {
@@ -693,6 +698,8 @@ const getWholesaleTitle = async (_, res) => {
   });
 };
 
+const getSimilarProducts = async (req, res) => {};
+
 module.exports = {
   getDetails,
   upload,
@@ -703,4 +710,5 @@ module.exports = {
   updateProduct,
   getProductStructure,
   getWholesaleTitle,
+  getSimilarProducts,
 };
