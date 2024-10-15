@@ -456,6 +456,12 @@ const updateProduct = async (req, res) => {
 
     if (product.images.length < updatingData["images"].length) {
       fs.writeFileSync(
+        path.join(__dirname, "error productId"),
+        `${productId}`,
+        "utf8"
+      );
+
+      fs.writeFileSync(
         path.join(__dirname, "error productDetails"),
         JSON.stringify(productDetails, null, 2),
         "utf8"
