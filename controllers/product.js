@@ -442,7 +442,12 @@ const updateProduct = async (req, res) => {
   }
 
   try {
-    let product = await shopify.product.update(productId, updatingData);
+    fs.writeFileSync(
+      path.join(__dirname, "updatingData"),
+      JSON.stringify(updatingData, null, 2),
+      "utf8"
+    );
+    await shopify.product.update(productId, updatingData);
     const { body } = await shopifyClient.query({
       data: {
         query: `mutation UpdateProductWithNewMedia($input: ProductInput!, $media: [CreateMediaInput!]) {
