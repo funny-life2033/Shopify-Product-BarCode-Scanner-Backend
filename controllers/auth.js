@@ -5,8 +5,11 @@ const User = require("../models/users");
 const signup = async (req, res) => {
   // checks if email already exists
   console.log("signup request: ", req.body);
+  if (!req.body.email || req.body.email === "") {
+    return res.status(400).json({ message: "Email not provided" });
+  }
   let dbUser = await User.findOne({
-    email: req.body.email,
+    email: req.body.email.toLocaleLowerCase(),
   });
 
   if (dbUser) {
