@@ -223,6 +223,9 @@ const upload = async (req, res) => {
               namespace: "custom",
             },
           ];
+          if (field.name === "upc_") {
+            creatingData["variants"][0]["barcode"] = value;
+          }
         } else if (field["isVariants"]) {
           creatingData["variants"][0][field.name] =
             details[field.name]["value"];
@@ -409,6 +412,9 @@ const updateProduct = async (req, res) => {
           type: field.type,
           value,
         });
+        if (field["name"] === "upc_") {
+          updatingData["variants"][0]["barcode"] = value;
+        }
       } else {
         deletingMetafields.push({
           key: field.key,
@@ -426,11 +432,6 @@ const updateProduct = async (req, res) => {
             ? { id: image["id"], position: index + 1 }
             : { ...image, position: index + 1 }
       );
-      fs.writeFileSync(
-        path.join(__dirname, "updatingImages"),
-        JSON.stringify(productDetails[field.name]["value"], null, 2),
-        "utf8"
-      );
     } else if (field.key === "tags") {
       if (Array.isArray(productDetails[field.name]["value"]))
         updatingData[field.name] =
@@ -442,17 +443,7 @@ const updateProduct = async (req, res) => {
   }
 
   try {
-    fs.writeFileSync(
-      path.join(__dirname, "updatingData"),
-      JSON.stringify(updatingData, null, 2),
-      "utf8"
-    );
     let product = await shopify.product.update(productId, updatingData);
-    fs.writeFileSync(
-      path.join(__dirname, "updatedResult"),
-      JSON.stringify(product, null, 2),
-      "utf8"
-    );
 
     if (product.images.length < updatingData["images"].length) {
       fs.writeFileSync(
