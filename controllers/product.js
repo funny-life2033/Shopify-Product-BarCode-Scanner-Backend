@@ -426,6 +426,11 @@ const updateProduct = async (req, res) => {
             ? { id: image["id"], position: index + 1 }
             : { ...image, position: index + 1 }
       );
+      fs.writeFileSync(
+        path.join(__dirname, "editing"),
+        JSON.stringify(productDetails[field.name]["value"], null, 2),
+        "utf8"
+      );
     } else if (field.key === "tags") {
       if (Array.isArray(productDetails[field.name]["value"]))
         updatingData[field.name] =
@@ -438,11 +443,6 @@ const updateProduct = async (req, res) => {
 
   try {
     let product = await shopify.product.update(productId, updatingData);
-    fs.writeFileSync(
-      path.join(__dirname, "editing"),
-      JSON.stringify({ updatingData, product }, null, 2),
-      "utf8"
-    );
     const { body } = await shopifyClient.query({
       data: {
         query: `mutation UpdateProductWithNewMedia($input: ProductInput!, $media: [CreateMediaInput!]) {
