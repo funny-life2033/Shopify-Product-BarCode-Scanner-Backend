@@ -73,7 +73,7 @@ const addTextToImage = async (image, text) => {
   const rectHeight = fontSize;
 
   ctx.fillStyle = "white";
-  ctx.fillRect(rectX, rectY, rectWidth, rectHeight);
+  // ctx.fillRect(rectX, rectY, rectWidth, rectHeight);
   drawRoundedRect(
     ctx,
     rectX,
