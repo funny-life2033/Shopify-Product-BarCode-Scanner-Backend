@@ -9,6 +9,8 @@ const WholesaleNo = require("../models/wholesaleNo");
 const { sleep } = require("../config/utils");
 const fs = require("fs");
 const path = require("path");
+const { createCanvas, loadImage } = require("canvas");
+
 require("@shopify/shopify-api/adapters/node");
 require("dotenv").config();
 
@@ -33,6 +35,36 @@ const session = shopifyGraphql.session.customAppSession(
 const shopifyClient = new shopifyGraphql.clients.Graphql({
   session,
 });
+
+const addTextToImage = async (image, text) => {
+  const img = await loadImage(image);
+
+  const canvas = createCanvas(img.width, img.height);
+  const ctx = canvas.getContext("2d");
+
+  ctx.drawImage(img, 0, 0);
+
+  const textX =
+    img.width - ctx.measureText(text).width - Math.floor(img.height / 20);
+  const textY = img.height - Math.floor(img.height / 20);
+  const fontSize = Math.floor(img.height / 10);
+
+  const rectX = textX - 2;
+  const rectY = textY - 2;
+  const rectWidth = ctx.measureText(text).width + 4;
+  const rectHeight = fontSize + 4;
+
+  ctx.fillStyle = "white";
+  ctx.fillRect(rectX, rectY, rectWidth, rectHeight);
+
+  ctx.fillStyle = "black";
+  ctx.font = `${fontSize}px Arial`;
+  ctx.fillText(text, textX, textY);
+
+  const newImage = canvas.toDataURL("image/jpeg");
+
+  return newImage;
+};
 
 const saveNewWholesale = async () => {
   const [no] = await WholesaleNo.find({});
@@ -207,6 +239,21 @@ const upload = async (req, res) => {
       wholesaleTitle = await saveNewWholesale();
     }
 
+    let featuredImage;
+
+    if (
+      details["box_"]["value"] &&
+      details["box_"]["value"] !== "" &&
+      details["images"]["value"] &&
+      details["images"]["value"].length &&
+      details["images"]["value"][0]["src"]
+    ) {
+      featuredImage = await addTextToImage(
+        details["images"]["value"][0]["src"],
+        `Box #${details["box_"]["value"]}`
+      );
+    }
+
     for (let field of detailFields) {
       let value = details[field.name]["value"];
 
@@ -241,6 +288,16 @@ const upload = async (req, res) => {
           if (Array.isArray(details[field.name]["value"]))
             creatingData[field.name] = details[field.name]["value"].join(", ");
           else creatingData[field.name] = "";
+        } else if (field["name"] === "images" && featuredImage) {
+          creatingData[field.name] = details[field.name]["value"].map(
+            (value, index) =>
+              index === 0
+                ? {
+                    src: featuredImage,
+                    attachment: featuredImage.split(";base64,")[1],
+                  }
+                : { ...value }
+          );
         } else {
           creatingData[field.name] = details[field.name]["value"];
         }
