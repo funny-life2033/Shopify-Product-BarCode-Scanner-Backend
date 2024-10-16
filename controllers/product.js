@@ -48,14 +48,14 @@ const addTextToImage = async (image, text) => {
   ctx.font = `${fontSize}px Arial`;
 
   const textX =
-    img.width - ctx.measureText(text).width - Math.floor(img.height / 20);
-  const textY = img.height - Math.floor(img.height / 20);
+    img.width - ctx.measureText(text).width - Math.floor(fontSize / 2);
+  const textY = img.height - Math.floor(fontSize / 2);
 
-  const rectX = textX - Math.floor(img.height / 170);
-  const rectY =
-    textY - Math.floor((fontSize * 2) / 3) - Math.floor(img.height / 85);
-  const rectWidth = ctx.measureText(text).width + Math.floor(img.height / 85);
-  const rectHeight = fontSize + Math.floor(img.height / 85);
+  const rectX = textX - Math.floor(fontSize / 17);
+  const rectY = textY - fontSize + Math.floor(fontSize / 8);
+  const rectWidth =
+    ctx.measureText(text).width + Math.floor((fontSize / 17) * 2);
+  const rectHeight = fontSize;
 
   ctx.fillStyle = "white";
   ctx.fillRect(rectX, rectY, rectWidth, rectHeight);
