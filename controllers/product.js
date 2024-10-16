@@ -36,6 +36,21 @@ const shopifyClient = new shopifyGraphql.clients.Graphql({
   session,
 });
 
+const drawRoundedRect = (ctx, x, y, width, height, radius) => {
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y); // Move to the top-left corner
+  ctx.lineTo(x + width - radius, y); // Top edge
+  ctx.quadraticCurveTo(x + width, y, x + width, y + radius); // Top-right corner
+  ctx.lineTo(x + width, y + height - radius); // Right edge
+  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height); // Bottom-right corner
+  ctx.lineTo(x + radius, y + height); // Bottom edge
+  ctx.quadraticCurveTo(x, y + height, x, y + height - radius); // Bottom-left corner
+  ctx.lineTo(x, y + radius); // Left edge
+  ctx.quadraticCurveTo(x, y, x + radius, y); // Top-left corner
+  ctx.closePath();
+  ctx.fill(); // Fill the rectangle
+};
+
 const addTextToImage = async (image, text) => {
   const img = await loadImage(image);
 
@@ -59,6 +74,14 @@ const addTextToImage = async (image, text) => {
 
   ctx.fillStyle = "white";
   ctx.fillRect(rectX, rectY, rectWidth, rectHeight);
+  drawRoundedRect(
+    ctx,
+    rectX,
+    rectY,
+    rectWidth,
+    rectHeight,
+    Math.floor(fontSize / 10)
+  );
 
   ctx.fillStyle = "black";
   ctx.fillText(text, textX, textY);
