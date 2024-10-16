@@ -59,7 +59,7 @@ const addTextToImage = async (image, text) => {
 
   ctx.drawImage(img, 0, 0);
 
-  const fontSize = Math.floor(img.height / 10);
+  const fontSize = Math.floor(img.height / 17);
   ctx.font = `${fontSize}px Arial`;
 
   const textX =
