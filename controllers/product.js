@@ -59,28 +59,27 @@ const addTextToImage = async (image, text) => {
 
   ctx.drawImage(img, 0, 0);
 
-  const fontSize = Math.floor(img.height / 17);
+  const fontSize = Math.floor(img.height / 10);
   ctx.font = `${fontSize}px Arial`;
 
   const textX =
     img.width - ctx.measureText(text).width - Math.floor(fontSize / 2);
   const textY = img.height - Math.floor(fontSize / 2);
 
-  const rectX = textX - Math.floor(fontSize / 17);
+  const rectX = textX - Math.floor(fontSize / 10);
   const rectY = textY - fontSize + Math.floor(fontSize / 8);
   const rectWidth =
-    ctx.measureText(text).width + Math.floor((fontSize / 17) * 2);
+    ctx.measureText(text).width + Math.floor((fontSize / 10) * 2);
   const rectHeight = fontSize;
 
   ctx.fillStyle = "white";
-  // ctx.fillRect(rectX, rectY, rectWidth, rectHeight);
   drawRoundedRect(
     ctx,
     rectX,
     rectY,
     rectWidth,
     rectHeight,
-    Math.floor(fontSize / 10)
+    Math.floor(fontSize / 6)
   );
 
   ctx.fillStyle = "black";
