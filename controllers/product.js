@@ -434,7 +434,12 @@ const updateProductOld = async (req, res) => {
 
 const updateProduct = async (req, res) => {
   const productId = req.params.productId;
-  const { productDetails, initialProductType } = req.body;
+  const {
+    productDetails,
+    initialProductType,
+    initialFeaturedImage,
+    initialBox,
+  } = req.body;
 
   let updatingData = {
     variants: [{ inventory_management: "shopify" }],
@@ -457,11 +462,31 @@ const updateProduct = async (req, res) => {
   let metafields = [];
   let deletingMetafields = [];
   let wholesaleTitle;
+  let featuredImage;
+
   if (productDetails["product_type"]["value"] === "Wholesale") {
     if (initialProductType === "Wholesale") {
       wholesaleTitle = productDetails["lot_"]["value"];
     } else {
       wholesaleTitle = await saveNewWholesale();
+    }
+  }
+
+  if (
+    productDetails["box_"]["value"] &&
+    productDetails["box_"]["value"] !== "" &&
+    productDetails["images"]["value"] &&
+    productDetails["images"]["value"][0]
+  ) {
+    if (
+      productDetails["box_"]["value"] !== initialBox ||
+      !initialFeaturedImage ||
+      productDetails["images"]["value"][0]["id"] !== initialFeaturedImage["id"]
+    ) {
+      featuredImage = await addTextToImage(
+        productDetails["images"]["value"][0]["src"],
+        `Box #${productDetails["box_"]["value"]}`
+      );
     }
   }
 
@@ -518,7 +543,13 @@ const updateProduct = async (req, res) => {
     } else if (field.name === "images") {
       updatingData[field.name] = productDetails[field.name]["value"].map(
         (image, index) =>
-          image["id"]
+          index === 0 && featuredImage
+            ? {
+                src: featuredImage,
+                attachment: featuredImage.split(";base64,")[1],
+                position: index + 1,
+              }
+            : image["id"]
             ? { id: image["id"], position: index + 1 }
             : { ...image, position: index + 1 }
       );
