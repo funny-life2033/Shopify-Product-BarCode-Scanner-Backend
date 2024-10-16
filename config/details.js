@@ -48,6 +48,7 @@ module.exports = [
       "Store Merch",
       "LaserDisc",
       "Wholesale",
+      "Vault",
     ],
     product_type: "All",
   },
