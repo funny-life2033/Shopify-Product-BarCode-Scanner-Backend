@@ -91,7 +91,8 @@ const getDetails = async (req, res) => {
         ),
       ];
       let country_of_manufacture = result["country"];
-      let catalog = result["catno"];
+      let catalog =
+        result["catno"] && result["catno"] !== "none" ? result["catno"] : "";
 
       let filteredData = {
         artist,
@@ -134,11 +135,18 @@ const getDetails = async (req, res) => {
         } else {
           if (!field.options) {
             if (field.isMultiSelect) {
-              if (filteredData[field.name])
+              if (
+                filteredData[field.name] &&
+                filteredData[field.name] !== "" &&
+                filteredData[field.name] !== "none"
+              )
                 details[field.name]["value"] = [filteredData[field.name]];
               else details[field.name]["value"] = [];
             } else
-              details[field.name]["value"] = filteredData[field.name] || "";
+              details[field.name]["value"] =
+                filteredData[field.name] && filteredData[field.name] !== "none"
+                  ? filteredData[field.name]
+                  : "";
           } else {
             let value = field.options.find(
               (option) => option === filteredData[field.name]
