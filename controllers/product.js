@@ -44,21 +44,23 @@ const addTextToImage = async (image, text) => {
 
   ctx.drawImage(img, 0, 0);
 
+  const fontSize = Math.floor(img.height / 10);
+  ctx.font = `${fontSize}px Arial`;
+
   const textX =
     img.width - ctx.measureText(text).width - Math.floor(img.height / 20);
   const textY = img.height - Math.floor(img.height / 20);
-  const fontSize = Math.floor(img.height / 10);
 
-  const rectX = textX - 2;
-  const rectY = textY - 2;
-  const rectWidth = ctx.measureText(text).width + 4;
-  const rectHeight = fontSize + 4;
+  const rectX = textX - Math.floor(img.height / 170);
+  const rectY =
+    textY - Math.floor((fontSize * 2) / 3) - Math.floor(img.height / 85);
+  const rectWidth = ctx.measureText(text).width + Math.floor(img.height / 85);
+  const rectHeight = fontSize + Math.floor(img.height / 85);
 
   ctx.fillStyle = "white";
   ctx.fillRect(rectX, rectY, rectWidth, rectHeight);
 
   ctx.fillStyle = "black";
-  ctx.font = `${fontSize}px Arial`;
   ctx.fillText(text, textX, textY);
 
   const newImage = canvas.toDataURL("image/jpeg");
