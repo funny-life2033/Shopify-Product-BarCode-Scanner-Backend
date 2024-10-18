@@ -1,0 +1,774 @@
+[
+  {
+    "id": "gid://shopify/Product/9634155299098",
+    "Title": "Black Moon - Worldwind (Remix) - 1999 - P1 53484 - Vinyl",
+    "images": [
+      {
+        "src": "https://cdn.shopify.com/s/files/1/0883/6625/2314/files/789359dc60439b6668abfa94caba841c.jpg?v=1729154906"
+      }
+    ],
+    "Description": "<p>Black Moon</p>\n<p>Worldwind (Remix)</p>\n<p>1999</p>\n<p>P1 53484</p>\n<p>Vinyl</p>",
+    "Product type": "Vinyl",
+    "Tags": [],
+    "Vendor": "Duck Down Music Inc.",
+    "Price": "0.00",
+    "Quantity": 0,
+    "Weight": 2,
+    "Weight unit": "POUNDS",
+    "metafields": [
+      {
+        "key": "upc_",
+        "value": "049925348415",
+        "name": "upc_",
+        "label": "UPC",
+        "type": "single_line_text_field",
+        "isMetafield": true,
+        "product_type": "All"
+      },
+      {
+        "key": "release_year",
+        "value": "[1999]",
+        "name": "release_year",
+        "label": "Release year / Year",
+        "type": "list.number_integer",
+        "isMetafield": true,
+        "isMultiSelect": true,
+        "product_type": "All"
+      },
+      {
+        "key": "title",
+        "value": "Worldwind (Remix)",
+        "name": "product_title",
+        "label": "Product Title",
+        "type": "single_line_text_field",
+        "isMetafield": true,
+        "product_type": [
+          "Vinyl",
+          "CDs",
+          "cassettes",
+          "DVDs & Blu-Rays",
+          "Books",
+          "Art",
+          "LaserDisc",
+          "Wholesale"
+        ]
+      },
+      {
+        "key": "artist",
+        "value": "Black Moon",
+        "name": "artist",
+        "label": "Artist",
+        "type": "single_line_text_field",
+        "isMetafield": true,
+        "product_type": [
+          "Vinyl",
+          "CDs",
+          "cassettes",
+          "Art",
+          "LaserDisc",
+          "Wholesale"
+        ]
+      },
+      {
+        "key": "genre_",
+        "value": "[\"Hip Hop\"]",
+        "name": "genre_",
+        "label": "Genre",
+        "type": "list.single_line_text_field",
+        "isMetafield": true,
+        "isMultiSelect": true,
+        "options": [
+          "Rock & Pop",
+          "Heavy Metal",
+          "Hip Hop",
+          "Blues",
+          "Country",
+          "Jazz",
+          "R & B",
+          "Punk",
+          "Electronic",
+          "Folk",
+          "Reggae",
+          "Latin",
+          "International",
+          "Soundtracks",
+          "Non-Music",
+          "Childrens",
+          "Holiday",
+          "Classical",
+          "Doo-Wop",
+          "Wholesale"
+        ],
+        "product_type": [
+          "Vinyl",
+          "CDs",
+          "cassettes",
+          "LaserDisc",
+          "Wholesale"
+        ]
+      },
+      {
+        "key": "catalog",
+        "value": "P1 53484",
+        "name": "catalog",
+        "label": "Catalog #",
+        "type": "single_line_text_field",
+        "isMetafield": true,
+        "product_type": [
+          "Vinyl",
+          "CDs",
+          "cassettes",
+          "LaserDisc",
+          "Wholesale"
+        ]
+      },
+      {
+        "key": "record_label",
+        "value": "Duck Down Music Inc.",
+        "name": "record_label",
+        "label": "Record Label",
+        "type": "single_line_text_field",
+        "isMetafield": true,
+        "product_type": [
+          "Vinyl",
+          "CDs",
+          "cassettes",
+          "LaserDisc",
+          "Wholesale"
+        ]
+      },
+      {
+        "key": "country_of_manufacture",
+        "value": "US",
+        "name": "country_of_manufacture",
+        "label": "Country of Manufacture",
+        "type": "single_line_text_field",
+        "isMetafield": true,
+        "product_type": [
+          "Vinyl",
+          "CDs",
+          "cassettes",
+          "LaserDisc",
+          "Wholesale"
+        ]
+      },
+      {
+        "key": "box_",
+        "value": "23",
+        "name": "box_",
+        "label": "Box #",
+        "type": "single_line_text_field",
+        "isMetafield": true,
+        "product_type": [
+          "Vinyl",
+          "Blank Media",
+          "CDs",
+          "cassettes",
+          "DVDs & Blu-Rays",
+          "Books",
+          "Art",
+          "Memorabilia",
+          "Vintage",
+          "Collectibles",
+          "Store Merch",
+          "LaserDisc"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gid://shopify/Product/9634161787162",
+    "Title": "Black Moon - Worldwind (Remix) - 1999 - P1 53484 - Vinyl",
+    "images": [
+      {
+        "src": "https://cdn.shopify.com/s/files/1/0883/6625/2314/files/77eebe8af0ab9d548a13dc15d594e464.jpg?v=1729155719"
+      }
+    ],
+    "Description": "<p>Black Moon</p>\n<p>Worldwind (Remix)</p>\n<p>1999</p>\n<p>P1 53484</p>\n<p>Vinyl</p>",
+    "Product type": "Vinyl",
+    "Tags": [],
+    "Vendor": "Duck Down Music Inc.",
+    "Price": "6.00",
+    "Quantity": 0,
+    "Weight": 2,
+    "Weight unit": "POUNDS",
+    "metafields": [
+      {
+        "key": "upc_",
+        "value": "049925348415",
+        "name": "upc_",
+        "label": "UPC",
+        "type": "single_line_text_field",
+        "isMetafield": true,
+        "product_type": "All"
+      },
+      {
+        "key": "release_year",
+        "value": "[1999]",
+        "name": "release_year",
+        "label": "Release year / Year",
+        "type": "list.number_integer",
+        "isMetafield": true,
+        "isMultiSelect": true,
+        "product_type": "All"
+      },
+      {
+        "key": "title",
+        "value": "Worldwind (Remix)",
+        "name": "product_title",
+        "label": "Product Title",
+        "type": "single_line_text_field",
+        "isMetafield": true,
+        "product_type": [
+          "Vinyl",
+          "CDs",
+          "cassettes",
+          "DVDs & Blu-Rays",
+          "Books",
+          "Art",
+          "LaserDisc",
+          "Wholesale"
+        ]
+      },
+      {
+        "key": "artist",
+        "value": "Black Moon",
+        "name": "artist",
+        "label": "Artist",
+        "type": "single_line_text_field",
+        "isMetafield": true,
+        "product_type": [
+          "Vinyl",
+          "CDs",
+          "cassettes",
+          "Art",
+          "LaserDisc",
+          "Wholesale"
+        ]
+      },
+      {
+        "key": "genre_",
+        "value": "[\"Hip Hop\"]",
+        "name": "genre_",
+        "label": "Genre",
+        "type": "list.single_line_text_field",
+        "isMetafield": true,
+        "isMultiSelect": true,
+        "options": [
+          "Rock & Pop",
+          "Heavy Metal",
+          "Hip Hop",
+          "Blues",
+          "Country",
+          "Jazz",
+          "R & B",
+          "Punk",
+          "Electronic",
+          "Folk",
+          "Reggae",
+          "Latin",
+          "International",
+          "Soundtracks",
+          "Non-Music",
+          "Childrens",
+          "Holiday",
+          "Classical",
+          "Doo-Wop",
+          "Wholesale"
+        ],
+        "product_type": [
+          "Vinyl",
+          "CDs",
+          "cassettes",
+          "LaserDisc",
+          "Wholesale"
+        ]
+      },
+      {
+        "key": "catalog",
+        "value": "P1 53484",
+        "name": "catalog",
+        "label": "Catalog #",
+        "type": "single_line_text_field",
+        "isMetafield": true,
+        "product_type": [
+          "Vinyl",
+          "CDs",
+          "cassettes",
+          "LaserDisc",
+          "Wholesale"
+        ]
+      },
+      {
+        "key": "record_label",
+        "value": "Duck Down Music Inc.",
+        "name": "record_label",
+        "label": "Record Label",
+        "type": "single_line_text_field",
+        "isMetafield": true,
+        "product_type": [
+          "Vinyl",
+          "CDs",
+          "cassettes",
+          "LaserDisc",
+          "Wholesale"
+        ]
+      },
+      {
+        "key": "country_of_manufacture",
+        "value": "US",
+        "name": "country_of_manufacture",
+        "label": "Country of Manufacture",
+        "type": "single_line_text_field",
+        "isMetafield": true,
+        "product_type": [
+          "Vinyl",
+          "CDs",
+          "cassettes",
+          "LaserDisc",
+          "Wholesale"
+        ]
+      },
+      {
+        "key": "box_",
+        "value": "13",
+        "name": "box_",
+        "label": "Box #",
+        "type": "single_line_text_field",
+        "isMetafield": true,
+        "product_type": [
+          "Vinyl",
+          "Blank Media",
+          "CDs",
+          "cassettes",
+          "DVDs & Blu-Rays",
+          "Books",
+          "Art",
+          "Memorabilia",
+          "Vintage",
+          "Collectibles",
+          "Store Merch",
+          "LaserDisc"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gid://shopify/Product/9634163065114",
+    "Title": "Black Moon - Worldwind (Remix) - 1999 - P1 53484 - Vinyl",
+    "images": [
+      {
+        "src": "https://cdn.shopify.com/s/files/1/0883/6625/2314/files/6105560925617198e63119d8050a5aff.jpg?v=1729155836"
+      },
+      {
+        "src": "https://cdn.shopify.com/s/files/1/0883/6625/2314/files/77eebe8af0ab9d548a13dc15d594e464_a7c8e3a8-8ccd-4744-8a74-4bbe1daeb8c6.jpg?v=1729155836"
+      }
+    ],
+    "Description": "<p>Black Moon</p>\n<p>Worldwind (Remix)</p>\n<p>1999</p>\n<p>P1 53484</p>\n<p>Vinyl</p>",
+    "Product type": "Vinyl",
+    "Tags": [],
+    "Vendor": "Duck Down Music Inc.",
+    "Price": "6.00",
+    "Quantity": 0,
+    "Weight": 2,
+    "Weight unit": "POUNDS",
+    "metafields": [
+      {
+        "key": "upc_",
+        "value": "049925348415",
+        "name": "upc_",
+        "label": "UPC",
+        "type": "single_line_text_field",
+        "isMetafield": true,
+        "product_type": "All"
+      },
+      {
+        "key": "release_year",
+        "value": "[1999]",
+        "name": "release_year",
+        "label": "Release year / Year",
+        "type": "list.number_integer",
+        "isMetafield": true,
+        "isMultiSelect": true,
+        "product_type": "All"
+      },
+      {
+        "key": "title",
+        "value": "Worldwind (Remix)",
+        "name": "product_title",
+        "label": "Product Title",
+        "type": "single_line_text_field",
+        "isMetafield": true,
+        "product_type": [
+          "Vinyl",
+          "CDs",
+          "cassettes",
+          "DVDs & Blu-Rays",
+          "Books",
+          "Art",
+          "LaserDisc",
+          "Wholesale"
+        ]
+      },
+      {
+        "key": "artist",
+        "value": "Black Moon",
+        "name": "artist",
+        "label": "Artist",
+        "type": "single_line_text_field",
+        "isMetafield": true,
+        "product_type": [
+          "Vinyl",
+          "CDs",
+          "cassettes",
+          "Art",
+          "LaserDisc",
+          "Wholesale"
+        ]
+      },
+      {
+        "key": "genre_",
+        "value": "[\"Hip Hop\"]",
+        "name": "genre_",
+        "label": "Genre",
+        "type": "list.single_line_text_field",
+        "isMetafield": true,
+        "isMultiSelect": true,
+        "options": [
+          "Rock & Pop",
+          "Heavy Metal",
+          "Hip Hop",
+          "Blues",
+          "Country",
+          "Jazz",
+          "R & B",
+          "Punk",
+          "Electronic",
+          "Folk",
+          "Reggae",
+          "Latin",
+          "International",
+          "Soundtracks",
+          "Non-Music",
+          "Childrens",
+          "Holiday",
+          "Classical",
+          "Doo-Wop",
+          "Wholesale"
+        ],
+        "product_type": [
+          "Vinyl",
+          "CDs",
+          "cassettes",
+          "LaserDisc",
+          "Wholesale"
+        ]
+      },
+      {
+        "key": "catalog",
+        "value": "P1 53484",
+        "name": "catalog",
+        "label": "Catalog #",
+        "type": "single_line_text_field",
+        "isMetafield": true,
+        "product_type": [
+          "Vinyl",
+          "CDs",
+          "cassettes",
+          "LaserDisc",
+          "Wholesale"
+        ]
+      },
+      {
+        "key": "record_label",
+        "value": "Duck Down Music Inc.",
+        "name": "record_label",
+        "label": "Record Label",
+        "type": "single_line_text_field",
+        "isMetafield": true,
+        "product_type": [
+          "Vinyl",
+          "CDs",
+          "cassettes",
+          "LaserDisc",
+          "Wholesale"
+        ]
+      },
+      {
+        "key": "country_of_manufacture",
+        "value": "US",
+        "name": "country_of_manufacture",
+        "label": "Country of Manufacture",
+        "type": "single_line_text_field",
+        "isMetafield": true,
+        "product_type": [
+          "Vinyl",
+          "CDs",
+          "cassettes",
+          "LaserDisc",
+          "Wholesale"
+        ]
+      },
+      {
+        "key": "box_",
+        "value": "133",
+        "name": "box_",
+        "label": "Box #",
+        "type": "single_line_text_field",
+        "isMetafield": true,
+        "product_type": [
+          "Vinyl",
+          "Blank Media",
+          "CDs",
+          "cassettes",
+          "DVDs & Blu-Rays",
+          "Books",
+          "Art",
+          "Memorabilia",
+          "Vintage",
+          "Collectibles",
+          "Store Merch",
+          "LaserDisc"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gid://shopify/Product/9634163818778",
+    "Title": "Black Moon - Worldwind (Remix) - 1999 - P1 53484 - Vinyl",
+    "images": [
+      {
+        "src": "https://cdn.shopify.com/s/files/1/0883/6625/2314/files/5e3f7f5108d7c722b0f2642ff331fea0.jpg?v=1729155928"
+      },
+      {
+        "src": "https://cdn.shopify.com/s/files/1/0883/6625/2314/files/77eebe8af0ab9d548a13dc15d594e464_9d77b575-5dc2-4e9a-b120-75c44f9c2888.jpg?v=1729155928"
+      }
+    ],
+    "Description": "<p>Black Moon</p>\n<p>Worldwind (Remix)</p>\n<p>1999</p>\n<p>P1 53484</p>\n<p>Vinyl</p>",
+    "Product type": "Vinyl",
+    "Tags": [],
+    "Vendor": "Duck Down Music Inc.",
+    "Price": "6.00",
+    "Quantity": 0,
+    "Weight": 2,
+    "Weight unit": "POUNDS",
+    "metafields": [
+      {
+        "key": "upc_",
+        "value": "049925348415",
+        "name": "upc_",
+        "label": "UPC",
+        "type": "single_line_text_field",
+        "isMetafield": true,
+        "product_type": "All"
+      },
+      {
+        "key": "release_year",
+        "value": "[1999]",
+        "name": "release_year",
+        "label": "Release year / Year",
+        "type": "list.number_integer",
+        "isMetafield": true,
+        "isMultiSelect": true,
+        "product_type": "All"
+      },
+      {
+        "key": "title",
+        "value": "Worldwind (Remix)",
+        "name": "product_title",
+        "label": "Product Title",
+        "type": "single_line_text_field",
+        "isMetafield": true,
+        "product_type": [
+          "Vinyl",
+          "CDs",
+          "cassettes",
+          "DVDs & Blu-Rays",
+          "Books",
+          "Art",
+          "LaserDisc",
+          "Wholesale"
+        ]
+      },
+      {
+        "key": "artist",
+        "value": "Black Moon",
+        "name": "artist",
+        "label": "Artist",
+        "type": "single_line_text_field",
+        "isMetafield": true,
+        "product_type": [
+          "Vinyl",
+          "CDs",
+          "cassettes",
+          "Art",
+          "LaserDisc",
+          "Wholesale"
+        ]
+      },
+      {
+        "key": "genre_",
+        "value": "[\"Hip Hop\"]",
+        "name": "genre_",
+        "label": "Genre",
+        "type": "list.single_line_text_field",
+        "isMetafield": true,
+        "isMultiSelect": true,
+        "options": [
+          "Rock & Pop",
+          "Heavy Metal",
+          "Hip Hop",
+          "Blues",
+          "Country",
+          "Jazz",
+          "R & B",
+          "Punk",
+          "Electronic",
+          "Folk",
+          "Reggae",
+          "Latin",
+          "International",
+          "Soundtracks",
+          "Non-Music",
+          "Childrens",
+          "Holiday",
+          "Classical",
+          "Doo-Wop",
+          "Wholesale"
+        ],
+        "product_type": [
+          "Vinyl",
+          "CDs",
+          "cassettes",
+          "LaserDisc",
+          "Wholesale"
+        ]
+      },
+      {
+        "key": "catalog",
+        "value": "P1 53484",
+        "name": "catalog",
+        "label": "Catalog #",
+        "type": "single_line_text_field",
+        "isMetafield": true,
+        "product_type": [
+          "Vinyl",
+          "CDs",
+          "cassettes",
+          "LaserDisc",
+          "Wholesale"
+        ]
+      },
+      {
+        "key": "record_label",
+        "value": "Duck Down Music Inc.",
+        "name": "record_label",
+        "label": "Record Label",
+        "type": "single_line_text_field",
+        "isMetafield": true,
+        "product_type": [
+          "Vinyl",
+          "CDs",
+          "cassettes",
+          "LaserDisc",
+          "Wholesale"
+        ]
+      },
+      {
+        "key": "country_of_manufacture",
+        "value": "US",
+        "name": "country_of_manufacture",
+        "label": "Country of Manufacture",
+        "type": "single_line_text_field",
+        "isMetafield": true,
+        "product_type": [
+          "Vinyl",
+          "CDs",
+          "cassettes",
+          "LaserDisc",
+          "Wholesale"
+        ]
+      },
+      {
+        "key": "box_",
+        "value": "1334",
+        "name": "box_",
+        "label": "Box #",
+        "type": "single_line_text_field",
+        "isMetafield": true,
+        "product_type": [
+          "Vinyl",
+          "Blank Media",
+          "CDs",
+          "cassettes",
+          "DVDs & Blu-Rays",
+          "Books",
+          "Art",
+          "Memorabilia",
+          "Vintage",
+          "Collectibles",
+          "Store Merch",
+          "LaserDisc"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gid://shopify/Product/9635473129754",
+    "Title": "test artist - test title - Vinyl",
+    "images": [],
+    "Description": "<p>test artist</p>\n<p>test title</p>\n<p>Vinyl</p>",
+    "Product type": "Vinyl",
+    "Tags": [],
+    "Vendor": "Vinyl Bay 777",
+    "Price": "0.00",
+    "Quantity": 0,
+    "Weight": 2,
+    "Weight unit": "POUNDS",
+    "metafields": [
+      {
+        "key": "upc_",
+        "value": "049925348415",
+        "name": "upc_",
+        "label": "UPC",
+        "type": "single_line_text_field",
+        "isMetafield": true,
+        "product_type": "All"
+      },
+      {
+        "key": "title",
+        "value": "test title",
+        "name": "product_title",
+        "label": "Product Title",
+        "type": "single_line_text_field",
+        "isMetafield": true,
+        "product_type": [
+          "Vinyl",
+          "CDs",
+          "cassettes",
+          "DVDs & Blu-Rays",
+          "Books",
+          "Art",
+          "LaserDisc",
+          "Wholesale"
+        ]
+      },
+      {
+        "key": "artist",
+        "value": "test artist",
+        "name": "artist",
+        "label": "Artist",
+        "type": "single_line_text_field",
+        "isMetafield": true,
+        "product_type": [
+          "Vinyl",
+          "CDs",
+          "cassettes",
+          "Art",
+          "LaserDisc",
+          "Wholesale"
+        ]
+      }
+    ]
+  }
+]

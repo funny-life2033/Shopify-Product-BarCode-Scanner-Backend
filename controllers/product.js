@@ -25,7 +25,7 @@ const shopifyGraphql = shopifyApi({
   adminApiAccessToken: process.env.SHOPIFY_API_TOKEN,
   hostName: `${process.env.SHOP_NAME}.myshopify.com`,
   isCustomStoreApp: true,
-  scopes: ["read_products", "write_products"],
+  scopes: ["read_products", "write_products", "read_inventory"],
 });
 
 const session = shopifyGraphql.session.customAppSession(
@@ -313,15 +313,18 @@ const upload = async (req, res) => {
           if (Array.isArray(details[field.name]["value"]))
             creatingData[field.name] = details[field.name]["value"].join(", ");
           else creatingData[field.name] = "";
-        } else if (field["name"] === "images" && featuredImage) {
+        } else if (field["name"] === "images") {
           creatingData[field.name] = details[field.name]["value"].map(
             (value, index) =>
-              index === 0
+              index === 0 && featuredImage
                 ? {
                     src: featuredImage,
                     attachment: featuredImage.split(";base64,")[1],
                   }
-                : { ...value }
+                : {
+                    src: value["src"],
+                    attachment: value["attachment"] || undefined,
+                  }
           );
         } else {
           creatingData[field.name] = details[field.name]["value"];
@@ -336,7 +339,11 @@ const upload = async (req, res) => {
         discogsId: details.id,
         uploadedBy: user._id,
       });
-      successed.push({ discogsId: details.id, id: response.id });
+      successed.push({
+        discogsId: details.id,
+        id: response.id,
+        images: response.images,
+      });
       // fs.writeFileSync(
       //   path.join(__dirname, "creating data"),
       //   JSON.stringify(creatingData, null, 2),
@@ -565,6 +572,20 @@ const updateProduct = async (req, res) => {
 
   try {
     let product = await shopify.product.update(productId, updatingData);
+    let productInDB = await Product.findOne({ productId });
+    const authHeader = req.get("Authorization");
+    const token = authHeader.split(" ")[1];
+    const decodedToken = jwt.verify(token, "secret");
+    let user = await User.findOne({ username: decodedToken?.username });
+    if (productInDB.updatedBy) {
+      if (productInDB.updatedBy.find((id) => user._id.equals(id))) {
+        productInDB.updatedBy.push(user._id);
+      }
+    } else {
+      productInDB.updatedBy = [user._id];
+    }
+
+    await productInDB.save();
 
     if (product.images.length < updatingData["images"].length) {
       fs.writeFileSync(
@@ -803,14 +824,33 @@ const getProducts = async (req, res) => {
   const token = authHeader.split(" ")[1];
   const decodedToken = jwt.verify(token, "secret");
   let user = await User.findOne({ username: decodedToken?.username });
-  let uploadedProducts = await Product.find({ uploadedBy: user._id });
+  let uploadedProducts = await Product.find({
+    $or: [{ uploadedBy: user._id }, { updatedBy: user._id }],
+  });
   if (uploadedProducts.length === 0) {
     return res.json({ message: "Success!", products: [] });
   }
   let ids = uploadedProducts.map((product) => product.productId);
 
   try {
-    const products = await shopify.product.list({ ids: ids.join(",") });
+    let products = [];
+
+    for (let i = 0; i < Math.ceil(ids.length / 250); i++) {
+      let newProducts;
+      while (true) {
+        try {
+          newProducts = await shopify.product.list({
+            ids: ids.slice(i * 250, i * 250 + 250).join(","),
+            limit: 250,
+          });
+          break;
+        } catch (error) {
+          await sleep(30000);
+        }
+      }
+      products = [...products, ...newProducts];
+    }
+
     products.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
     for (let product of uploadedProducts) {
@@ -847,7 +887,284 @@ const getWholesaleTitle = async (_, res) => {
   });
 };
 
-const getSimilarProducts = async (req, res) => {};
+const getSimilarProducts = async (req, res) => {
+  const { upc, title, artist } = req.body;
+
+  let products = [];
+  let metafields = detailFields.filter((field) => field.isMetafield);
+  if (upc && upc !== "") {
+    let after;
+
+    while (true) {
+      let res;
+      while (true) {
+        try {
+          res = await shopifyClient.query({
+            data: `query {
+            productVariants(first: 250, query: "barcode:${upc}"${
+              after ? `, after: "${after}"` : ""
+            }) {
+              edges {
+                node {
+                  price
+                  inventoryQuantity
+                  inventoryItem {
+                    measurement {
+                      weight {
+                        unit
+                        value
+                      }
+                    }
+                  }
+                  product {
+                    id
+                    title
+                    bodyHtml
+                    productType
+                    tags
+                    images(first: 100) {
+                      nodes {
+                        src
+                      }
+                    }
+                    vendor
+                    metafields(first: 100, keys: [${metafields
+                      .map(({ key }) => `"custom.${key}"`)
+                      .join(", ")}]) {
+                      edges {
+                        node {
+                          key
+                          value
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+              pageInfo {
+                hasNextPage
+                endCursor
+              }
+            }
+          }`,
+          });
+          break;
+        } catch (error) {
+          console.log("error: ", error);
+          await sleep(30000);
+        }
+      }
+
+      for (let { node } of res.body.data.productVariants.edges) {
+        if (!products.find((product) => product.id === node.product.id)) {
+          products.push({
+            id: node.product.id,
+            Title: node.product.title,
+            images: node.product.images.nodes,
+            Description: node.product.bodyHtml,
+            "Product type": node.product.productType,
+            Tags: node.product.tags,
+            Vendor: node.product.vendor,
+            Price: node.price,
+            Quantity: node.inventoryQuantity,
+            Weight: node.inventoryItem.measurement.weight.value,
+            "Weight unit": node.inventoryItem.measurement.weight.unit,
+            metafields: node.product.metafields.edges
+              .map(({ node }) => ({
+                ...node,
+                ...metafields.find(
+                  (field) => node.key === `custom.${field.key}`
+                ),
+              }))
+              .filter(
+                (data) =>
+                  data.value &&
+                  data.value !== "" &&
+                  (!data.type.startsWith("list.") ||
+                    JSON.parse(data.value).length) &&
+                  (data.product_type === "All" ||
+                    data.product_type.includes(node.product.productType))
+              ),
+          });
+        }
+      }
+
+      if (res.body.data.productVariants.pageInfo.hasNextPage) {
+        after = res.body.data.productVariants.pageInfo.endCursor;
+      } else {
+        break;
+      }
+    }
+  } else if (title && title !== "" && artist && artist !== "") {
+    let after;
+    let productIds = [];
+
+    while (true) {
+      let res;
+      while (true) {
+        try {
+          res = await shopifyClient.query({
+            data: `query {
+            products(first: 250${after ? `, after: "${after}"` : ""}) {
+              edges {
+                node {
+                  id
+                  metafields(first: 2, keys: ["custom.title", "custom.artist"]) {
+                    edges {
+                      node {
+                        key
+                        value
+                      }
+                    }
+                  }
+                }
+              }
+              pageInfo {
+                hasNextPage
+                endCursor
+              }
+            }
+          }`,
+          });
+          break;
+        } catch (error) {
+          console.log("getting products error:", error);
+          await sleep(30000);
+        }
+      }
+
+      for (let { node } of res.body.data.products.edges) {
+        let titleMetafield = node.metafields.edges.find(
+          ({ node }) => node.key === `custom.title`
+        );
+        if (!titleMetafield) continue;
+        let titleValue = titleMetafield.node.value;
+        let artistMetafield = node.metafields.edges.find(
+          ({ node }) => node.key === `custom.artist`
+        );
+        if (!artistMetafield) continue;
+        let artistValue = artistMetafield.node.value;
+
+        if (
+          titleValue === title &&
+          artistValue === artist &&
+          !productIds.find((id) => node.id === id)
+        ) {
+          productIds.push(node.id);
+        }
+      }
+
+      if (res.body.data.products.pageInfo.hasNextPage) {
+        after = res.body.data.products.pageInfo.endCursor;
+      } else {
+        break;
+      }
+    }
+
+    for (let i = 0; i < Math.ceil(productIds.length / 250); i++) {
+      let res;
+      while (true) {
+        try {
+          res = await shopifyClient.query({
+            data: `query {
+            ${productIds
+              .slice(i * 250, i * 250 + 250)
+              .map(
+                (id) => `Product_${
+                  id.split("Product/")[1]
+                }: product(id: "${id}") {
+              id
+              title
+              bodyHtml
+              productType
+              tags
+              images(first: 100) {
+                nodes {
+                  src
+                }
+              }
+              vendor
+              variants(first: 1) {
+                nodes {
+                  price
+                  inventoryQuantity
+                  inventoryItem {
+                    measurement {
+                      weight {
+                        unit
+                        value
+                      }
+                    }
+                  }
+                }
+              }
+              metafields(first: 100, keys: [${metafields
+                .map(({ key }) => `"custom.${key}"`)
+                .join(", ")}]) {
+                edges {
+                  node {
+                    key
+                    value
+                  }
+                }
+              }
+            }`
+              )
+              .join(`\n\n`)}
+          }`,
+          });
+
+          break;
+        } catch (error) {
+          console.log("getting products error:", error);
+          await sleep(30000);
+        }
+      }
+
+      for (let id of Object.keys(res.body.data)) {
+        let node = res.body.data[id];
+
+        products.push({
+          id: node.id,
+          Title: node.title,
+          images: node.images.nodes,
+          Description: node.bodyHtml,
+          "Product type": node.productType,
+          Tags: node.tags,
+          Vendor: node.vendor,
+          Price: node.variants.nodes[0].price,
+          Quantity: node.variants.nodes[0].inventoryQuantity,
+          Weight: node.variants.nodes[0].inventoryItem.measurement.weight.value,
+          "Weight unit":
+            node.variants.nodes[0].inventoryItem.measurement.weight.unit,
+          metafields: node.metafields.edges
+            .map(({ node }) => ({
+              ...node,
+              ...metafields.find((field) => node.key === `custom.${field.key}`),
+            }))
+            .filter(
+              (data) =>
+                data.value &&
+                data.value !== "" &&
+                (!data.type.startsWith("list.") ||
+                  JSON.parse(data.value).length) &&
+                (data.product_type === "All" ||
+                  data.product_type.includes(node.productType))
+            ),
+        });
+      }
+    }
+  } else {
+    return res
+      .status(400)
+      .json({ message: "Please provide UPC or title / artist!" });
+  }
+
+  res.json({
+    message: `${products.length} similar products found in your store!`,
+    products,
+  });
+};
 
 module.exports = {
   getDetails,
