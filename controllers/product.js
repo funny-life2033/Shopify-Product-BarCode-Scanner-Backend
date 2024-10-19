@@ -143,12 +143,12 @@ const getDetails = async (req, res) => {
       let product_type = [
         ...new Set(
           result["format"].map((format) =>
-            format === "DVD"
+            format.toLocaleLowerCase() === "dvd"
               ? "DVDs"
-              : format === "CD"
+              : format.toLocaleLowerCase() === "cd"
               ? "CDs"
-              : format === "Cassette"
-              ? "cassetts"
+              : format.toLocaleLowerCase() === "cassette"
+              ? "cassettes"
               : format
           )
         ),
