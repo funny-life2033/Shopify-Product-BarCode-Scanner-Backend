@@ -222,7 +222,6 @@ const getDetails = async (req, res) => {
       }
 
       details["id"] = result["id"];
-      console.log(JSON.stringify(details, null, 2));
 
       return details;
     });
