@@ -137,6 +137,14 @@ const getDetails = async (req, res) => {
           )
         ),
       ];
+      if (
+        result["style"] &&
+        Array.isArray(result["style"]) &&
+        (result["style"].includes("Heavy Metal") ||
+          result["style"].includes("Hard Rock"))
+      )
+        genre_.push("Heavy Metal");
+
       let release_year = result["year"];
       let record_label = [...new Set(result["label"])];
       let vendor = [...new Set(result["label"])];
