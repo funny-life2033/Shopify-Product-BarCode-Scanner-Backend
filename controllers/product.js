@@ -133,7 +133,11 @@ const getDetails = async (req, res) => {
       let genre_ = [
         ...new Set(
           result["genre"].map((genre) =>
-            genre === "Rock" || genre === "Pop" ? "Rock & Pop" : genre
+            genre === "Rock" || genre === "Pop"
+              ? "Rock & Pop"
+              : genre === "Funk / Soul"
+              ? "R & B"
+              : genre
           )
         ),
       ];
