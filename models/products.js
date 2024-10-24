@@ -8,7 +8,6 @@ const productsSchema = new mongoose.Schema({
   uploadedBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "users",
-    required: true,
   },
   updatedBy: [
     {

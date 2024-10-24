@@ -595,15 +595,19 @@ const updateProduct = async (req, res) => {
     const token = authHeader.split(" ")[1];
     const decodedToken = jwt.verify(token, "secret");
     let user = await User.findOne({ username: decodedToken?.username });
-    if (productInDB.updatedBy) {
-      if (productInDB.updatedBy.find((id) => user._id.equals(id))) {
-        productInDB.updatedBy.push(user._id);
+    if (productInDB) {
+      if (productInDB.updatedBy) {
+        if (productInDB.updatedBy.find((id) => user._id.equals(id))) {
+          productInDB.updatedBy.push(user._id);
+        }
+      } else {
+        productInDB.updatedBy = [user._id];
       }
-    } else {
-      productInDB.updatedBy = [user._id];
-    }
 
-    await productInDB.save();
+      await productInDB.save();
+    } else {
+      await Product.create({ productId, updatedBy: [user._id] });
+    }
 
     if (product.images.length < updatingData["images"].length) {
       fs.writeFileSync(
@@ -792,14 +796,14 @@ const getProduct = async (req, res) => {
       metafield: { owner_resource: "product", owner_id: productId },
     });
 
-    for (let metafield of metafields) {
-      if (metafield["key"] === "uploaded_by") {
-        if (metafield["value"] !== username) {
-          return res.status(400).json({ message: "Invalid product ID" });
-        }
-        break;
-      }
-    }
+    // for (let metafield of metafields) {
+    //   if (metafield["key"] === "uploaded_by") {
+    //     if (metafield["value"] !== username) {
+    //       return res.status(400).json({ message: "Invalid product ID" });
+    //     }
+    //     break;
+    //   }
+    // }
   } catch (error) {
     console.log("metafield error: ", error);
     return res.status(400).json({ message: "Incorrect product ID!" });
