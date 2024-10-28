@@ -210,6 +210,7 @@ module.exports = [
       "Classical",
       "Doo-Wop",
       "Wholesale",
+      "Religious",
     ],
     product_type: ["Vinyl", "CDs", "cassettes", "LaserDisc", "Wholesale"],
   },
