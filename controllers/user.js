@@ -14,7 +14,10 @@ const getUsers = async (_, res) => {
         let i = 0;
         while (true) {
           if (i === products.length) break;
-          if (products[i].uploadedBy.equals(user._id)) {
+          if (
+            products[i].uploadedBy &&
+            products[i].uploadedBy.equals(user._id)
+          ) {
             productsCount++;
             products.splice(i, 1);
           } else {

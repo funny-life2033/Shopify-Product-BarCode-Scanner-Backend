@@ -141,13 +141,17 @@ const getDetails = async (req, res) => {
           )
         ),
       ];
-      if (
-        result["style"] &&
-        Array.isArray(result["style"]) &&
-        (result["style"].includes("Heavy Metal") ||
-          result["style"].includes("Hard Rock"))
-      )
-        genre_.push("Heavy Metal");
+      if (result["style"] && Array.isArray(result["style"])) {
+        if (
+          result["style"].includes("Heavy Metal") ||
+          result["style"].includes("Hard Rock")
+        )
+          genre_.push("Heavy Metal");
+
+        if (result["style"].includes("Folk")) {
+          genre_.push("Folk");
+        }
+      }
 
       let release_year = result["year"];
       let record_label = [...new Set(result["label"])];
@@ -1188,6 +1192,170 @@ const getSimilarProducts = async (req, res) => {
   });
 };
 
+const searchProducts = async (req, res) => {
+  const { box } = req.body;
+  if (box && box !== "") {
+    let products = [];
+    let metafields = detailFields.filter((field) => field.isMetafield);
+
+    let after;
+    let productIds = [];
+
+    while (true) {
+      let res;
+      while (true) {
+        try {
+          res = await shopifyClient.query({
+            data: `query {
+            products(first: 250${after ? `, after: "${after}"` : ""}) {
+              edges {
+                node {
+                  id
+                  metafields(first: 2, keys: ["custom.box_"]) {
+                    edges {
+                      node {
+                        key
+                        value
+                      }
+                    }
+                  }
+                }
+              }
+              pageInfo {
+                hasNextPage
+                endCursor
+              }
+            }
+          }`,
+          });
+          break;
+        } catch (error) {
+          console.log("getting products error:", error);
+          await sleep(30000);
+        }
+      }
+
+      for (let { node } of res.body.data.products.edges) {
+        let boxMetafield = node.metafields.edges.find(
+          ({ node }) => node.key === `custom.box_`
+        );
+        if (!boxMetafield) continue;
+        let boxValue = boxMetafield.node.value;
+
+        if (boxValue === box && !productIds.find((id) => node.id === id)) {
+          productIds.push(node.id);
+        }
+      }
+
+      if (res.body.data.products.pageInfo.hasNextPage) {
+        after = res.body.data.products.pageInfo.endCursor;
+      } else {
+        break;
+      }
+    }
+
+    for (let i = 0; i < Math.ceil(productIds.length / 250); i++) {
+      let res;
+      while (true) {
+        try {
+          res = await shopifyClient.query({
+            data: `query {
+            ${productIds
+              .slice(i * 250, i * 250 + 250)
+              .map(
+                (id) => `Product_${
+                  id.split("Product/")[1]
+                }: product(id: "${id}") {
+              id
+              title
+              bodyHtml
+              productType
+              tags
+              images(first: 100) {
+                nodes {
+                  src
+                }
+              }
+              vendor
+              variants(first: 1) {
+                nodes {
+                  price
+                  inventoryQuantity
+                  inventoryItem {
+                    measurement {
+                      weight {
+                        unit
+                        value
+                      }
+                    }
+                  }
+                }
+              }
+              metafields(first: 100, keys: [${metafields
+                .map(({ key }) => `"custom.${key}"`)
+                .join(", ")}]) {
+                edges {
+                  node {
+                    key
+                    value
+                  }
+                }
+              }
+            }`
+              )
+              .join(`\n\n`)}
+          }`,
+          });
+
+          break;
+        } catch (error) {
+          console.log("getting products error:", error);
+          await sleep(30000);
+        }
+      }
+
+      for (let id of Object.keys(res.body.data)) {
+        let node = res.body.data[id];
+
+        products.push({
+          id: node.id,
+          Title: node.title,
+          images: node.images.nodes,
+          Description: node.bodyHtml,
+          "Product type": node.productType,
+          Tags: node.tags,
+          Vendor: node.vendor,
+          Price: node.variants.nodes[0].price,
+          Quantity: node.variants.nodes[0].inventoryQuantity,
+          Weight: node.variants.nodes[0].inventoryItem.measurement.weight.value,
+          "Weight unit":
+            node.variants.nodes[0].inventoryItem.measurement.weight.unit,
+          metafields: node.metafields.edges
+            .map(({ node }) => ({
+              ...node,
+              ...metafields.find((field) => node.key === `custom.${field.key}`),
+            }))
+            .filter(
+              (data) =>
+                data.value &&
+                data.value !== "" &&
+                (!data.type.startsWith("list.") ||
+                  JSON.parse(data.value).length) &&
+                (data.product_type === "All" ||
+                  data.product_type.includes(node.productType))
+            ),
+        });
+      }
+    }
+    res.json({
+      message: `${products.length} products found in your store!`,
+      products,
+    });
+  } else {
+    return res.status(400).json({ message: "Please provide box value" });
+  }
+};
+
 module.exports = {
   getDetails,
   upload,
@@ -1199,4 +1367,5 @@ module.exports = {
   getProductStructure,
   getWholesaleTitle,
   getSimilarProducts,
+  searchProducts,
 };
