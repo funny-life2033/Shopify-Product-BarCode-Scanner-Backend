@@ -892,6 +892,21 @@ const getProducts = async (req, res) => {
   }
 };
 
+const getProductsCount = async (req, res) => {
+  const authHeader = req.get("Authorization");
+  const token = authHeader.split(" ")[1];
+  const decodedToken = jwt.verify(token, "secret");
+  let user = await User.findOne({ username: decodedToken?.username });
+  let uploadedProducts = await Product.find({
+    uploadedBy: user._id,
+  });
+
+  res.json({
+    message: `You have ${uploadedProducts.length} products uploaded`,
+    count: uploadedProducts.length,
+  });
+};
+
 const removeProduct = async (req, res) => {
   const productId = req.params.productId;
 
@@ -1368,4 +1383,5 @@ module.exports = {
   getWholesaleTitle,
   getSimilarProducts,
   searchProducts,
+  getProductsCount,
 };

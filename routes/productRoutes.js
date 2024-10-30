@@ -11,6 +11,7 @@ const {
   duplicateProduct,
   getSimilarProducts,
   searchProducts,
+  getProductsCount,
 } = require("../controllers/product");
 
 const router = express.Router();
@@ -24,6 +25,7 @@ router.delete("/:productId", removeProduct);
 router.post("/duplicate/:productId", duplicateProduct);
 router.get("/product/getWholesaleTitle", getWholesaleTitle);
 router.get("/product/structure", getProductStructure);
+router.get("/product/getProductsCount", getProductsCount);
 router.post("/product/getSimilarProducts", getSimilarProducts);
 router.post("/product/searchProducts", searchProducts);
 
