@@ -137,6 +137,8 @@ const getDetails = async (req, res) => {
               ? "Rock & Pop"
               : genre === "Funk / Soul"
               ? "R & B"
+              : genre === "Folk, World, & Country"
+              ? "Country"
               : genre
           )
         ),
