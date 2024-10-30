@@ -374,6 +374,14 @@ module.exports = [
     product_type: ["Books"],
   },
   {
+    name: "edition_aritst",
+    key: "edition_aritst",
+    label: "Edition (Aritist)",
+    type: "single_line_text_field",
+    isMetafield: true,
+    product_type: ["Art"],
+  },
+  {
     name: "framed",
     key: "framed",
     label: "Framed",
