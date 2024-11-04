@@ -246,6 +246,15 @@ module.exports = [
     product_type: ["Art"],
   },
   {
+    name: "price_on_request",
+    key: "price_on_request",
+    label: "Price On Request",
+    type: "boolean",
+    isMetafield: true,
+    options: ["true", "false"],
+    product_type: ["Art"],
+  },
+  {
     name: "production_technique",
     key: "production_technique",
     label: "Production Technique",

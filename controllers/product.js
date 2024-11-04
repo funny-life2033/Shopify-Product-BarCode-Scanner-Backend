@@ -153,6 +153,10 @@ const getDetails = async (req, res) => {
         if (result["style"].includes("Folk")) {
           genre_.push("Folk");
         }
+
+        if (result["style"].includes("Punk")) {
+          genre_.push("Punk");
+        }
       }
 
       let release_year = result["year"];
@@ -848,6 +852,51 @@ const getProduct = async (req, res) => {
 };
 
 const getProducts = async (req, res) => {
+  const { searchWord } = req.body;
+  console.log(searchWord);
+
+  if (searchWord && searchWord !== "") {
+    const products = [];
+    let after;
+    while (true) {
+      try {
+        const res = await shopifyClient.query({
+          data: `query {
+            products(first: 250, query:"title:*${searchWord}*"${
+            after ? `, after: "${after}"` : ""
+          }) {
+              nodes {
+                id
+                title
+              }
+              pageInfo {
+                hasNextPage
+                endCursor
+              }
+            }
+          }`,
+        });
+
+        products.push(
+          ...res.body.data.products.nodes.map((product) => ({
+            id: product.id.split("/Product/")[1],
+            title: product.title,
+          }))
+        );
+
+        if (res.body.data.products.pageInfo.hasNextPage) {
+          after = res.body.data.products.pageInfo.endCursor;
+        } else {
+          break;
+        }
+      } catch (error) {}
+    }
+
+    return res.json({
+      message: `${products.length} products found!`,
+      products,
+    });
+  }
   const authHeader = req.get("Authorization");
   const token = authHeader.split(" ")[1];
   const decodedToken = jwt.verify(token, "secret");
@@ -1210,31 +1259,50 @@ const getSimilarProducts = async (req, res) => {
 };
 
 const searchProducts = async (req, res) => {
-  const { box } = req.body;
-  if (box && box !== "") {
-    let products = [];
-    let metafields = detailFields.filter((field) => field.isMetafield);
+  const { upc, title, artist, box } = req.body;
+  // if (box && box !== "") {
+  let products = [];
+  let metafields = detailFields.filter((field) => field.isMetafield);
 
-    let after;
-    let productIds = [];
+  let after;
+  let productIds = [];
 
+  const keys = [];
+  if (upc && upc !== "") keys.push("custom.upc_");
+  else if (title && title !== "" && artist && artist !== "")
+    keys.push("custom.title", "custom.artist");
+  else if (box && box !== "") keys.push("custom.box_");
+
+  if (keys.length === 0)
+    return res.status(400).json({ message: "Please provide correct values" });
+
+  while (true) {
+    let res;
     while (true) {
-      let res;
-      while (true) {
-        try {
-          res = await shopifyClient.query({
-            data: `query {
+      try {
+        res = await shopifyClient.query({
+          data: `query {
             products(first: 250${after ? `, after: "${after}"` : ""}) {
               edges {
                 node {
                   id
-                  metafields(first: 2, keys: ["custom.box_"]) {
+                  metafields(first: 2, keys: [${keys
+                    .map((key) => `"${key}"`)
+                    .join(", ")}]) {
                     edges {
                       node {
                         key
                         value
                       }
                     }
+                  }
+                  ${
+                    upc &&
+                    `variants(first: 1) {
+                    nodes {
+                      barcode
+                    }
+                  }`
                   }
                 }
               }
@@ -1244,39 +1312,77 @@ const searchProducts = async (req, res) => {
               }
             }
           }`,
-          });
-          break;
-        } catch (error) {
-          console.log("getting products error:", error);
-          await sleep(30000);
-        }
-      }
-
-      for (let { node } of res.body.data.products.edges) {
-        let boxMetafield = node.metafields.edges.find(
-          ({ node }) => node.key === `custom.box_`
-        );
-        if (!boxMetafield) continue;
-        let boxValue = boxMetafield.node.value;
-
-        if (boxValue === box && !productIds.find((id) => node.id === id)) {
-          productIds.push(node.id);
-        }
-      }
-
-      if (res.body.data.products.pageInfo.hasNextPage) {
-        after = res.body.data.products.pageInfo.endCursor;
-      } else {
+        });
         break;
+      } catch (error) {
+        console.log("getting products error:", error);
+        await sleep(30000);
       }
     }
 
-    for (let i = 0; i < Math.ceil(productIds.length / 250); i++) {
-      let res;
-      while (true) {
-        try {
-          res = await shopifyClient.query({
-            data: `query {
+    for (let { node } of res.body.data.products.edges) {
+      if (!productIds.find((id) => node.id === id)) {
+        const fields = {};
+        for (let key of keys) {
+          let metafield = node.metafields.edges.find(
+            ({ node }) => node.key === key
+          );
+          if (metafield) fields[key] = metafield;
+
+          if (
+            key === "custom.upc_" &&
+            (!metafield ||
+              !metafield.node.value ||
+              metafield.node.value === "") &&
+            node.variants.nodes[0] &&
+            node.variants.nodes[0].barcode &&
+            node.variants.nodes[0].barcode !== ""
+          ) {
+            fields[key] = { node: { value: node.variants.nodes[0].barcode } };
+          }
+        }
+
+        if (
+          (upc &&
+            fields["custom.upc_"] &&
+            fields["custom.upc_"].node.value === upc) ||
+          (artist &&
+            title &&
+            fields["custom.artist"] &&
+            fields["custom.title"].node.value &&
+            (artist === fields["custom.artist"].node.value) === artist &&
+            (title === fields["custom.title"].node.value) === title) ||
+          (box &&
+            fields["custom.box_"] &&
+            fields["custom.box_"].node.value === box)
+        ) {
+          productIds.push(node.id);
+        }
+      }
+      // let boxMetafield = node.metafields.edges.find(
+      //   ({ node }) => node.key === `custom.box_`
+      // );
+      // if (!boxMetafield) continue;
+      // let boxValue = boxMetafield.node.value;
+
+      // if (boxValue === box && !productIds.find((id) => node.id === id)) {
+      //   productIds.push(node.id);
+      // }
+    }
+
+    if (res.body.data.products.pageInfo.hasNextPage) {
+      after = res.body.data.products.pageInfo.endCursor;
+    } else {
+      break;
+    }
+  }
+
+  for (let i = 0; i < Math.ceil(productIds.length / 250); i++) {
+    let res;
+    while (true) {
+      try {
+        res = await shopifyClient.query({
+          data: `query {
             ${productIds
               .slice(i * 250, i * 250 + 250)
               .map(
@@ -1322,55 +1428,55 @@ const searchProducts = async (req, res) => {
               )
               .join(`\n\n`)}
           }`,
-          });
-
-          break;
-        } catch (error) {
-          console.log("getting products error:", error);
-          await sleep(30000);
-        }
-      }
-
-      for (let id of Object.keys(res.body.data)) {
-        let node = res.body.data[id];
-
-        products.push({
-          id: node.id,
-          Title: node.title,
-          images: node.images.nodes,
-          Description: node.bodyHtml,
-          "Product type": node.productType,
-          Tags: node.tags,
-          Vendor: node.vendor,
-          Price: node.variants.nodes[0].price,
-          Quantity: node.variants.nodes[0].inventoryQuantity,
-          Weight: node.variants.nodes[0].inventoryItem.measurement.weight.value,
-          "Weight unit":
-            node.variants.nodes[0].inventoryItem.measurement.weight.unit,
-          metafields: node.metafields.edges
-            .map(({ node }) => ({
-              ...node,
-              ...metafields.find((field) => node.key === `custom.${field.key}`),
-            }))
-            .filter(
-              (data) =>
-                data.value &&
-                data.value !== "" &&
-                (!data.type.startsWith("list.") ||
-                  JSON.parse(data.value).length) &&
-                (data.product_type === "All" ||
-                  data.product_type.includes(node.productType))
-            ),
         });
+
+        break;
+      } catch (error) {
+        console.log("getting products error:", error);
+        await sleep(30000);
       }
     }
-    res.json({
-      message: `${products.length} products found in your store!`,
-      products,
-    });
-  } else {
-    return res.status(400).json({ message: "Please provide box value" });
+
+    for (let id of Object.keys(res.body.data)) {
+      let node = res.body.data[id];
+
+      products.push({
+        id: node.id,
+        Title: node.title,
+        images: node.images.nodes,
+        Description: node.bodyHtml,
+        "Product type": node.productType,
+        Tags: node.tags,
+        Vendor: node.vendor,
+        Price: node.variants.nodes[0].price,
+        Quantity: node.variants.nodes[0].inventoryQuantity,
+        Weight: node.variants.nodes[0].inventoryItem.measurement.weight.value,
+        "Weight unit":
+          node.variants.nodes[0].inventoryItem.measurement.weight.unit,
+        metafields: node.metafields.edges
+          .map(({ node }) => ({
+            ...node,
+            ...metafields.find((field) => node.key === `custom.${field.key}`),
+          }))
+          .filter(
+            (data) =>
+              data.value &&
+              data.value !== "" &&
+              (!data.type.startsWith("list.") ||
+                JSON.parse(data.value).length) &&
+              (data.product_type === "All" ||
+                data.product_type.includes(node.productType))
+          ),
+      });
+    }
   }
+  res.json({
+    message: `${products.length} products found in your store!`,
+    products,
+  });
+  // } else {
+  //   return res.status(400).json({ message: "Please provide box value" });
+  // }
 };
 
 module.exports = {

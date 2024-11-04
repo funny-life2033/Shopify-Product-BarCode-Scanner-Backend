@@ -21,23 +21,17 @@ const client = new shopify.clients.Graphql({
 });
 
 (async () => {
+  const all = [];
   while (true) {
     let after;
     const res = await client.query({
       data: `query {
-          products(first: 250${after ? `, after: "${after}"` : ""}) {
+          products(first: 250, query:"title:*Heads*"${
+            after ? `, after: "${after}"` : ""
+          }) {
             nodes {
               id
-              variants(first: 1) {
-                nodes {
-                  id
-                  barcode
-                }
-              }
-              metafield(namespace: "custom", key: "upc_") {
-                key
-                value
-              }
+              title
             }
             pageInfo {
               hasNextPage
@@ -47,42 +41,14 @@ const client = new shopify.clients.Graphql({
         }`,
     });
 
-    for (let product of res.body.data.products.nodes) {
-      if (
-        product.metafield &&
-        product.metafield.key === "upc_" &&
-        product.metafield.value &&
-        product.metafield.value !== "" &&
-        product.variants.nodes.length &&
-        product.variants.nodes[0].barcode !== product.metafield.value
-      ) {
-        await client.query({
-          data: {
-            query: `mutation productVariantsBulkUpdate($productId: ID!, $variants: [ProductVariantsBulkInput!]!) {
-  productVariantsBulkUpdate(productId: $productId, variants: $variants) {
-    userErrors {
-      field
-      message
-    }
-  }
-}`,
-            variables: {
-              productId: product.id,
-              variants: [
-                {
-                  id: product.variants.nodes[0].id,
-                  barcode: product.metafield.value,
-                },
-              ],
-            },
-          },
-        });
-      }
-    }
+    all.push(...res.body.data.products.nodes);
+
     if (res.body.data.products.pageInfo.hasNextPage) {
       after = res.body.data.products.pageInfo.endCursor;
     } else {
       break;
     }
   }
+
+  console.log(JSON.stringify(all, null, 2));
 })();
