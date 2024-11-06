@@ -385,7 +385,7 @@ module.exports = [
   {
     name: "edition_aritst",
     key: "edition_aritst",
-    label: "Edition (Aritist)",
+    label: "Edition (Art)",
     type: "single_line_text_field",
     isMetafield: true,
     product_type: ["Art"],
