@@ -552,7 +552,7 @@ const updateProduct = async (req, res) => {
         }
       }
 
-      if (value && value !== "") {
+      if (typeof value === "boolean" || (value && value !== "")) {
         metafields.push({
           id: productDetails[field.name]["id"]
             ? `gid://shopify/Metafield/${productDetails[field.name]["id"]}`
@@ -560,7 +560,7 @@ const updateProduct = async (req, res) => {
           key: field.key,
           namespace: "custom",
           type: field.type,
-          value,
+          value: `${value}`,
         });
         if (field["name"] === "upc_") {
           updatingData["variants"][0]["barcode"] = value;
