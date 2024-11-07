@@ -1278,10 +1278,9 @@ const searchProducts = async (req, res) => {
 
   while (true) {
     let res;
-    while (true) {
-      try {
-        res = await shopifyClient.query({
-          data: `query {
+    try {
+      res = await shopifyClient.query({
+        data: `query {
             products(first: 250${after ? `, after: "${after}"` : ""}) {
               edges {
                 node {
@@ -1297,12 +1296,13 @@ const searchProducts = async (req, res) => {
                     }
                   }
                   ${
-                    upc &&
-                    `variants(first: 1) {
+                    upc
+                      ? `variants(first: 1) {
                     nodes {
                       barcode
                     }
                   }`
+                      : ""
                   }
                 }
               }
@@ -1312,12 +1312,10 @@ const searchProducts = async (req, res) => {
               }
             }
           }`,
-        });
-        break;
-      } catch (error) {
-        console.log("getting products error:", error);
-        await sleep(30000);
-      }
+      });
+    } catch (error) {
+      console.log("getting products error:", error);
+      await sleep(30000);
     }
 
     for (let { node } of res.body.data.products.edges) {
