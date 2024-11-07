@@ -1347,7 +1347,7 @@ const searchProducts = async (req, res) => {
           (artist &&
             title &&
             fields["custom.artist"] &&
-            fields["custom.title"].node.value &&
+            fields["custom.title"] &&
             (artist === fields["custom.artist"].node.value) === artist &&
             (title === fields["custom.title"].node.value) === title) ||
           (box &&
