@@ -93,11 +93,11 @@ module.exports = [
     product_type: "All",
   },
   {
-    name: "upc_",
-    key: "upc_",
+    name: "barcode",
+    key: "barcode",
     label: "UPC",
     type: "single_line_text_field",
-    isMetafield: true,
+    isVariants: true,
     product_type: "All",
   },
   {

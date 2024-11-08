@@ -106,12 +106,12 @@ const saveNewWholesale = async () => {
 };
 
 const getDetails = async (req, res) => {
-  const { upc } = req.body;
-  if (!upc) return res.status(400).json({ message: "Incorrect UPC" });
+  const { barcode } = req.body;
+  if (!barcode) return res.status(400).json({ message: "Incorrect UPC" });
 
   try {
     const { data } = await axios.default.get(
-      `https://api.discogs.com/database/search?barcode=${upc}`,
+      `https://api.discogs.com/database/search?barcode=${barcode}`,
       {
         headers: {
           Authorization: `Discogs token=${process.env.DISCOGS_API_TOKEN}`,
@@ -184,7 +184,7 @@ const getDetails = async (req, res) => {
         images,
         title: "",
         product_title: title,
-        upc_: upc,
+        barcode: barcode,
         vendor,
         genre_,
         release_year,
@@ -260,7 +260,7 @@ const getDetails = async (req, res) => {
 
 const upload = async (req, res) => {
   const productDetailsList = req.body;
-  // console.log(JSON.stringify(productDetailsList, null, 2));
+
   const authHeader = req.get("Authorization");
   const token = authHeader.split(" ")[1];
   const decodedToken = jwt.verify(token, "secret");
@@ -331,9 +331,6 @@ const upload = async (req, res) => {
               namespace: "custom",
             },
           ];
-          if (field.name === "upc_") {
-            creatingData["variants"][0]["barcode"] = value;
-          }
         } else if (field["isVariants"]) {
           creatingData["variants"][0][field.name] =
             details[field.name]["value"];
@@ -562,9 +559,6 @@ const updateProduct = async (req, res) => {
           type: field.type,
           value: `${value}`,
         });
-        if (field["name"] === "upc_") {
-          updatingData["variants"][0]["barcode"] = value;
-        }
       } else {
         deletingMetafields.push({
           key: field.key,
@@ -769,7 +763,7 @@ const duplicateProduct = async (req, res) => {
       newProduct: { id: newProductId, title: productTitle },
     });
   } catch (error) {
-    console.log(error);
+    console.log("duplicating error:", error);
     return res.status(500).json({ message: "Server error" });
   }
 };
@@ -853,7 +847,7 @@ const getProduct = async (req, res) => {
 
 const getProducts = async (req, res) => {
   const { searchWord } = req.body;
-  console.log(searchWord);
+  console.log("searching word:", searchWord);
 
   if (searchWord && searchWord !== "") {
     const products = [];
@@ -979,23 +973,23 @@ const getWholesaleTitle = async (_, res) => {
   });
 };
 
-const getSimilarProducts = async (req, res) => {
-  const { upc, title, artist } = req.body;
-
+const searchProducts = async (req, res) => {
+  const { barcode, title, artist, box } = req.body;
+  // if (box && box !== "") {
   let products = [];
   let metafields = detailFields.filter((field) => field.isMetafield);
-  if (upc && upc !== "") {
+
+  if (barcode && barcode !== "") {
     let after;
 
     while (true) {
       let res;
-      while (true) {
-        try {
-          res = await shopifyClient.query({
-            data: `query {
-            productVariants(first: 250, query: "barcode:${upc}"${
-              after ? `, after: "${after}"` : ""
-            }) {
+      try {
+        res = await shopifyClient.query({
+          data: `query {
+            productVariants(first: 250, query: "barcode:${barcode}"${
+            after ? `, after: "${after}"` : ""
+          }) {
               edges {
                 node {
                   price
@@ -1039,12 +1033,10 @@ const getSimilarProducts = async (req, res) => {
               }
             }
           }`,
-          });
-          break;
-        } catch (error) {
-          console.log("error: ", error);
-          await sleep(30000);
-        }
+        });
+      } catch (error) {
+        console.log("error: ", error);
+        return res.status(500).json({ message: "Please try again!" });
       }
 
       for (let { node } of res.body.data.productVariants.edges) {
@@ -1061,6 +1053,7 @@ const getSimilarProducts = async (req, res) => {
             Quantity: node.inventoryQuantity,
             Weight: node.inventoryItem.measurement.weight.value,
             "Weight unit": node.inventoryItem.measurement.weight.unit,
+            Barcode: barcode,
             metafields: node.product.metafields.edges
               .map(({ node }) => ({
                 ...node,
@@ -1087,62 +1080,74 @@ const getSimilarProducts = async (req, res) => {
         break;
       }
     }
-  } else if (title && title !== "" && artist && artist !== "") {
+  } else {
     let after;
     let productIds = [];
 
+    const keys = [];
+    if (title && title !== "" && artist && artist !== "")
+      keys.push("custom.title", "custom.artist");
+    else if (box && box !== "") keys.push("custom.box_");
+
+    if (keys.length === 0)
+      return res.status(400).json({ message: "Please provide correct values" });
+
     while (true) {
       let res;
-      while (true) {
-        try {
-          res = await shopifyClient.query({
-            data: `query {
-            products(first: 250${after ? `, after: "${after}"` : ""}) {
-              edges {
-                node {
-                  id
-                  metafields(first: 2, keys: ["custom.title", "custom.artist"]) {
-                    edges {
-                      node {
-                        key
-                        value
+      try {
+        res = await shopifyClient.query({
+          data: `query {
+              products(first: 250${after ? `, after: "${after}"` : ""}) {
+                edges {
+                  node {
+                    id
+                    metafields(first: 2, keys: [${keys
+                      .map((key) => `"${key}"`)
+                      .join(", ")}]) {
+                      edges {
+                        node {
+                          key
+                          value
+                        }
                       }
                     }
                   }
                 }
+                pageInfo {
+                  hasNextPage
+                  endCursor
+                }
               }
-              pageInfo {
-                hasNextPage
-                endCursor
-              }
-            }
-          }`,
-          });
-          break;
-        } catch (error) {
-          console.log("getting products error:", error);
-          await sleep(30000);
-        }
+            }`,
+        });
+      } catch (error) {
+        console.log("getting products error:", error);
+        await sleep(30000);
       }
 
       for (let { node } of res.body.data.products.edges) {
-        let titleMetafield = node.metafields.edges.find(
-          ({ node }) => node.key === `custom.title`
-        );
-        if (!titleMetafield) continue;
-        let titleValue = titleMetafield.node.value;
-        let artistMetafield = node.metafields.edges.find(
-          ({ node }) => node.key === `custom.artist`
-        );
-        if (!artistMetafield) continue;
-        let artistValue = artistMetafield.node.value;
+        if (!productIds.find((id) => node.id === id)) {
+          const fields = {};
+          for (let key of keys) {
+            let metafield = node.metafields.edges.find(
+              ({ node }) => node.key === key
+            );
+            if (metafield) fields[key] = metafield;
+          }
 
-        if (
-          titleValue === title &&
-          artistValue === artist &&
-          !productIds.find((id) => node.id === id)
-        ) {
-          productIds.push(node.id);
+          if (
+            (artist &&
+              title &&
+              fields["custom.artist"] &&
+              fields["custom.title"] &&
+              (artist === fields["custom.artist"].node.value) === artist &&
+              (title === fields["custom.title"].node.value) === title) ||
+            (box &&
+              fields["custom.box_"] &&
+              fields["custom.box_"].node.value === box)
+          ) {
+            productIds.push(node.id);
+          }
         }
       }
 
@@ -1159,51 +1164,52 @@ const getSimilarProducts = async (req, res) => {
         try {
           res = await shopifyClient.query({
             data: `query {
-            ${productIds
-              .slice(i * 250, i * 250 + 250)
-              .map(
-                (id) => `Product_${
-                  id.split("Product/")[1]
-                }: product(id: "${id}") {
-              id
-              title
-              bodyHtml
-              productType
-              tags
-              images(first: 100) {
-                nodes {
-                  src
+              ${productIds
+                .slice(i * 250, i * 250 + 250)
+                .map(
+                  (id) => `Product_${
+                    id.split("Product/")[1]
+                  }: product(id: "${id}") {
+                id
+                title
+                bodyHtml
+                productType
+                tags
+                images(first: 100) {
+                  nodes {
+                    src
+                  }
                 }
-              }
-              vendor
-              variants(first: 1) {
-                nodes {
-                  price
-                  inventoryQuantity
-                  inventoryItem {
-                    measurement {
-                      weight {
-                        unit
-                        value
+                vendor
+                variants(first: 1) {
+                  nodes {
+                    barcode
+                    price
+                    inventoryQuantity
+                    inventoryItem {
+                      measurement {
+                        weight {
+                          unit
+                          value
+                        }
                       }
                     }
                   }
                 }
-              }
-              metafields(first: 100, keys: [${metafields
-                .map(({ key }) => `"custom.${key}"`)
-                .join(", ")}]) {
-                edges {
-                  node {
-                    key
-                    value
+                metafields(first: 100, keys: [${metafields
+                  .map(({ key }) => `"custom.${key}"`)
+                  .join(", ")}]) {
+                  edges {
+                    node {
+                      key
+                      value
+                    }
                   }
                 }
-              }
-            }`
-              )
-              .join(`\n\n`)}
-          }`,
+              }`
+                )
+                .join(`\n\n`)}
+            }`,
           });
 
           break;
@@ -1224,6 +1230,7 @@ const getSimilarProducts = async (req, res) => {
           "Product type": node.productType,
           Tags: node.tags,
           Vendor: node.vendor,
+          Barcode: node.variants.nodes[0].barcode,
           Price: node.variants.nodes[0].price,
           Quantity: node.variants.nodes[0].inventoryQuantity,
           Weight: node.variants.nodes[0].inventoryItem.measurement.weight.value,
@@ -1246,228 +1253,8 @@ const getSimilarProducts = async (req, res) => {
         });
       }
     }
-  } else {
-    return res
-      .status(400)
-      .json({ message: "Please provide UPC or title / artist!" });
   }
 
-  res.json({
-    message: `${products.length} similar products found in your store!`,
-    products,
-  });
-};
-
-const searchProducts = async (req, res) => {
-  const { upc, title, artist, box } = req.body;
-  // if (box && box !== "") {
-  let products = [];
-  let metafields = detailFields.filter((field) => field.isMetafield);
-
-  let after;
-  let productIds = [];
-
-  const keys = [];
-  if (upc && upc !== "") keys.push("custom.upc_");
-  else if (title && title !== "" && artist && artist !== "")
-    keys.push("custom.title", "custom.artist");
-  else if (box && box !== "") keys.push("custom.box_");
-
-  if (keys.length === 0)
-    return res.status(400).json({ message: "Please provide correct values" });
-
-  while (true) {
-    let res;
-    try {
-      res = await shopifyClient.query({
-        data: `query {
-            products(first: 250${after ? `, after: "${after}"` : ""}) {
-              edges {
-                node {
-                  id
-                  metafields(first: 2, keys: [${keys
-                    .map((key) => `"${key}"`)
-                    .join(", ")}]) {
-                    edges {
-                      node {
-                        key
-                        value
-                      }
-                    }
-                  }
-                  ${
-                    upc
-                      ? `variants(first: 1) {
-                    nodes {
-                      barcode
-                    }
-                  }`
-                      : ""
-                  }
-                }
-              }
-              pageInfo {
-                hasNextPage
-                endCursor
-              }
-            }
-          }`,
-      });
-    } catch (error) {
-      console.log("getting products error:", error);
-      await sleep(30000);
-    }
-
-    for (let { node } of res.body.data.products.edges) {
-      if (!productIds.find((id) => node.id === id)) {
-        const fields = {};
-        for (let key of keys) {
-          let metafield = node.metafields.edges.find(
-            ({ node }) => node.key === key
-          );
-          if (metafield) fields[key] = metafield;
-
-          if (
-            key === "custom.upc_" &&
-            (!metafield ||
-              !metafield.node.value ||
-              metafield.node.value === "") &&
-            node.variants.nodes[0] &&
-            node.variants.nodes[0].barcode &&
-            node.variants.nodes[0].barcode !== ""
-          ) {
-            fields[key] = { node: { value: node.variants.nodes[0].barcode } };
-          }
-        }
-
-        if (
-          (upc &&
-            fields["custom.upc_"] &&
-            fields["custom.upc_"].node.value === upc) ||
-          (artist &&
-            title &&
-            fields["custom.artist"] &&
-            fields["custom.title"] &&
-            (artist === fields["custom.artist"].node.value) === artist &&
-            (title === fields["custom.title"].node.value) === title) ||
-          (box &&
-            fields["custom.box_"] &&
-            fields["custom.box_"].node.value === box)
-        ) {
-          productIds.push(node.id);
-        }
-      }
-      // let boxMetafield = node.metafields.edges.find(
-      //   ({ node }) => node.key === `custom.box_`
-      // );
-      // if (!boxMetafield) continue;
-      // let boxValue = boxMetafield.node.value;
-
-      // if (boxValue === box && !productIds.find((id) => node.id === id)) {
-      //   productIds.push(node.id);
-      // }
-    }
-
-    if (res.body.data.products.pageInfo.hasNextPage) {
-      after = res.body.data.products.pageInfo.endCursor;
-    } else {
-      break;
-    }
-  }
-
-  for (let i = 0; i < Math.ceil(productIds.length / 250); i++) {
-    let res;
-    while (true) {
-      try {
-        res = await shopifyClient.query({
-          data: `query {
-            ${productIds
-              .slice(i * 250, i * 250 + 250)
-              .map(
-                (id) => `Product_${
-                  id.split("Product/")[1]
-                }: product(id: "${id}") {
-              id
-              title
-              bodyHtml
-              productType
-              tags
-              images(first: 100) {
-                nodes {
-                  src
-                }
-              }
-              vendor
-              variants(first: 1) {
-                nodes {
-                  price
-                  inventoryQuantity
-                  inventoryItem {
-                    measurement {
-                      weight {
-                        unit
-                        value
-                      }
-                    }
-                  }
-                }
-              }
-              metafields(first: 100, keys: [${metafields
-                .map(({ key }) => `"custom.${key}"`)
-                .join(", ")}]) {
-                edges {
-                  node {
-                    key
-                    value
-                  }
-                }
-              }
-            }`
-              )
-              .join(`\n\n`)}
-          }`,
-        });
-
-        break;
-      } catch (error) {
-        console.log("getting products error:", error);
-        await sleep(30000);
-      }
-    }
-
-    for (let id of Object.keys(res.body.data)) {
-      let node = res.body.data[id];
-
-      products.push({
-        id: node.id,
-        Title: node.title,
-        images: node.images.nodes,
-        Description: node.bodyHtml,
-        "Product type": node.productType,
-        Tags: node.tags,
-        Vendor: node.vendor,
-        Price: node.variants.nodes[0].price,
-        Quantity: node.variants.nodes[0].inventoryQuantity,
-        Weight: node.variants.nodes[0].inventoryItem.measurement.weight.value,
-        "Weight unit":
-          node.variants.nodes[0].inventoryItem.measurement.weight.unit,
-        metafields: node.metafields.edges
-          .map(({ node }) => ({
-            ...node,
-            ...metafields.find((field) => node.key === `custom.${field.key}`),
-          }))
-          .filter(
-            (data) =>
-              data.value &&
-              data.value !== "" &&
-              (!data.type.startsWith("list.") ||
-                JSON.parse(data.value).length) &&
-              (data.product_type === "All" ||
-                data.product_type.includes(node.productType))
-          ),
-      });
-    }
-  }
   res.json({
     message: `${products.length} products found in your store!`,
     products,
@@ -1487,7 +1274,6 @@ module.exports = {
   updateProduct,
   getProductStructure,
   getWholesaleTitle,
-  getSimilarProducts,
   searchProducts,
   getProductsCount,
 };
