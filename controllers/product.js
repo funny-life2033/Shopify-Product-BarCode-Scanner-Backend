@@ -124,7 +124,26 @@ const getDetails = async (req, res) => {
     }
 
     if (data.results.length === 0) {
-      return res.status(400).json({ message: "Incorrect UPC!" });
+      if (barcode && barcode.length === 12) {
+        const barcode10 = barcode.substring(1, 11);
+
+        const res10 = await axios.default.get(
+          `https://api.discogs.com/database/search?barcode=${barcode10}`,
+          {
+            headers: {
+              Authorization: `Discogs token=${process.env.DISCOGS_API_TOKEN}`,
+            },
+          }
+        );
+
+        if (
+          !res10.data ||
+          !res10.data.results ||
+          res10.data.results.length === 0
+        )
+          return res.status(400).json({ message: "Incorrect UPC!" });
+        data.results = res10.data.results;
+      } else return res.status(400).json({ message: "Incorrect UPC!" });
     }
 
     let productDetails = data.results.map((result) => {
