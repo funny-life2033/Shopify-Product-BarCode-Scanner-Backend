@@ -16,7 +16,7 @@ module.exports = [
       "Vinyl",
       "Blank Media",
       "CDs",
-      "cassettes",
+      "Cassettes",
       "DVDs & Blu-Rays",
       "Books",
       "Art",
@@ -38,7 +38,7 @@ module.exports = [
       "Vinyl",
       "Blank Media",
       "CDs",
-      "cassettes",
+      "Cassettes",
       "DVDs & Blu-Rays",
       "Books",
       "Art",
@@ -151,7 +151,7 @@ module.exports = [
     product_type: [
       "Vinyl",
       "CDs",
-      "cassettes",
+      "Cassettes",
       "DVDs & Blu-Rays",
       "Books",
       "Art",
@@ -176,7 +176,7 @@ module.exports = [
     product_type: [
       "Vinyl",
       "CDs",
-      "cassettes",
+      "Cassettes",
       "Art",
       "LaserDisc",
       "Wholesale",
@@ -211,7 +211,7 @@ module.exports = [
       "Doo-Wop",
       "Religious",
     ],
-    product_type: ["Vinyl", "CDs", "cassettes", "LaserDisc", "Wholesale"],
+    product_type: ["Vinyl", "CDs", "Cassettes", "LaserDisc", "Wholesale"],
   },
   {
     name: "vinyl_grade",
@@ -221,7 +221,7 @@ module.exports = [
     isMetafield: true,
     isMultiSelect: true,
     options: ["Sealed", "NM", "EX", "VG++", "VG+", "VG", "New", "Used"],
-    product_type: ["Vinyl", "CDs", "cassettes", "LaserDisc", "Wholesale"],
+    product_type: ["Vinyl", "CDs", "Cassettes", "LaserDisc", "Wholesale"],
   },
   {
     name: "art_type",
@@ -323,7 +323,7 @@ module.exports = [
     label: "Catalog #",
     type: "single_line_text_field",
     isMetafield: true,
-    product_type: ["Vinyl", "CDs", "cassettes", "LaserDisc", "Wholesale"],
+    product_type: ["Vinyl", "CDs", "Cassettes", "LaserDisc", "Wholesale"],
   },
   {
     name: "record_label",
@@ -331,7 +331,7 @@ module.exports = [
     label: "Record Label",
     type: "single_line_text_field",
     isMetafield: true,
-    product_type: ["Vinyl", "CDs", "cassettes", "LaserDisc", "Wholesale"],
+    product_type: ["Vinyl", "CDs", "Cassettes", "LaserDisc", "Wholesale"],
   },
   {
     name: "genre",
@@ -446,7 +446,7 @@ module.exports = [
     label: "Country of Manufacture",
     type: "single_line_text_field",
     isMetafield: true,
-    product_type: ["Vinyl", "CDs", "cassettes", "LaserDisc", "Wholesale"],
+    product_type: ["Vinyl", "CDs", "Cassettes", "LaserDisc", "Wholesale"],
   },
   {
     name: "autographed",
@@ -458,7 +458,7 @@ module.exports = [
     product_type: [
       "Vinyl",
       "CDs",
-      "cassettes",
+      "Cassettes",
       "Books",
       "LaserDisc",
       "Wholesale",
@@ -474,7 +474,7 @@ module.exports = [
       "Vinyl",
       "Blank Media",
       "CDs",
-      "cassettes",
+      "Cassettes",
       "DVDs & Blu-Rays",
       "Books",
       "Art",

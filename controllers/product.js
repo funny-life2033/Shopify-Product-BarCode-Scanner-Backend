@@ -189,7 +189,7 @@ const getDetails = async (req, res) => {
               : format.toLocaleLowerCase() === "cd"
               ? "CDs"
               : format.toLocaleLowerCase() === "cassette"
-              ? "cassettes"
+              ? "Cassettes"
               : format
           )
         ),
