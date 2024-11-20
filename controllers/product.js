@@ -124,7 +124,7 @@ const getDetails = async (req, res) => {
     }
 
     if (data.results.length === 0) {
-      if (barcode && barcode.length === 12) {
+      if (barcode && (barcode.length === 12 || barcode.length === 11)) {
         const barcode10 = barcode.substring(1, 11);
 
         const res10 = await axios.default.get(
@@ -1000,6 +1000,7 @@ const searchProducts = async (req, res) => {
 
   if (barcode && barcode !== "") {
     let after;
+    const nodes = [];
 
     while (true) {
       let res;
@@ -1057,46 +1058,116 @@ const searchProducts = async (req, res) => {
         console.log("error: ", error);
         return res.status(500).json({ message: "Please try again!" });
       }
-
-      for (let { node } of res.body.data.productVariants.edges) {
-        if (!products.find((product) => product.id === node.product.id)) {
-          products.push({
-            id: node.product.id,
-            Title: node.product.title,
-            images: node.product.images.nodes,
-            Description: node.product.bodyHtml,
-            "Product type": node.product.productType,
-            Tags: node.product.tags,
-            Vendor: node.product.vendor,
-            Price: node.price,
-            Quantity: node.inventoryQuantity,
-            Weight: node.inventoryItem.measurement.weight.value,
-            "Weight unit": node.inventoryItem.measurement.weight.unit,
-            Barcode: barcode,
-            metafields: node.product.metafields.edges
-              .map(({ node }) => ({
-                ...node,
-                ...metafields.find(
-                  (field) => node.key === `custom.${field.key}`
-                ),
-              }))
-              .filter(
-                (data) =>
-                  data.value &&
-                  data.value !== "" &&
-                  (!data.type.startsWith("list.") ||
-                    JSON.parse(data.value).length) &&
-                  (data.product_type === "All" ||
-                    data.product_type.includes(node.product.productType))
-              ),
-          });
-        }
-      }
+      nodes.push(...res.body.data.productVariants.edges);
 
       if (res.body.data.productVariants.pageInfo.hasNextPage) {
         after = res.body.data.productVariants.pageInfo.endCursor;
       } else {
         break;
+      }
+    }
+
+    if (barcode.length === 12 || barcode.length === 11) {
+      const barcode10 = barcode.substring(1, 11);
+
+      after = null;
+
+      while (true) {
+        let res;
+        try {
+          res = await shopifyClient.query({
+            data: `query {
+              productVariants(first: 250, query: "barcode:${barcode10}"${
+              after ? `, after: "${after}"` : ""
+            }) {
+                edges {
+                  node {
+                    price
+                    inventoryQuantity
+                    inventoryItem {
+                      measurement {
+                        weight {
+                          unit
+                          value
+                        }
+                      }
+                    }
+                    product {
+                      id
+                      title
+                      bodyHtml
+                      productType
+                      tags
+                      images(first: 100) {
+                        nodes {
+                          src
+                        }
+                      }
+                      vendor
+                      metafields(first: 100, keys: [${metafields
+                        .map(({ key }) => `"custom.${key}"`)
+                        .join(", ")}]) {
+                        edges {
+                          node {
+                            key
+                            value
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+                pageInfo {
+                  hasNextPage
+                  endCursor
+                }
+              }
+            }`,
+          });
+        } catch (error) {
+          console.log("error: ", error);
+          return res.status(500).json({ message: "Please try again!" });
+        }
+        nodes.push(...res.body.data.productVariants.edges);
+
+        if (res.body.data.productVariants.pageInfo.hasNextPage) {
+          after = res.body.data.productVariants.pageInfo.endCursor;
+        } else {
+          break;
+        }
+      }
+    }
+
+    for (let { node } of nodes) {
+      if (!products.find((product) => product.id === node.product.id)) {
+        products.push({
+          id: node.product.id,
+          Title: node.product.title,
+          images: node.product.images.nodes,
+          Description: node.product.bodyHtml,
+          "Product type": node.product.productType,
+          Tags: node.product.tags,
+          Vendor: node.product.vendor,
+          Price: node.price,
+          Quantity: node.inventoryQuantity,
+          Weight: node.inventoryItem.measurement.weight.value,
+          "Weight unit": node.inventoryItem.measurement.weight.unit,
+          Barcode: barcode,
+          metafields: node.product.metafields.edges
+            .map(({ node }) => ({
+              ...node,
+              ...metafields.find((field) => node.key === `custom.${field.key}`),
+            }))
+            .filter(
+              (data) =>
+                data.value &&
+                data.value !== "" &&
+                (!data.type.startsWith("list.") ||
+                  JSON.parse(data.value).length) &&
+                (data.product_type === "All" ||
+                  data.product_type.includes(node.product.productType))
+            ),
+        });
       }
     }
   } else {
