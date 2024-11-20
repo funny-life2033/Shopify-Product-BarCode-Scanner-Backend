@@ -124,7 +124,7 @@ const getDetails = async (req, res) => {
     }
 
     if (data.results.length === 0) {
-      if (barcode && (barcode.length === 12 || barcode.length === 11)) {
+      if (barcode.length === 12 || barcode.length === 11) {
         const barcode10 = barcode.substring(1, 11);
 
         const res10 = await axios.default.get(
@@ -136,14 +136,34 @@ const getDetails = async (req, res) => {
           }
         );
 
-        if (
-          !res10.data ||
-          !res10.data.results ||
-          res10.data.results.length === 0
-        )
-          return res.status(400).json({ message: "Incorrect UPC!" });
-        data.results = res10.data.results;
+        if (!res10.data || !res10.data.results) {
+          return res.status(500).json({ message: "Server error!" });
+        }
+
+        if (res10.data.results.length === 0 && barcode.length === 12) {
+          const barcode11 = barcode.substring(0, 11);
+          const res11 = await axios.default.get(
+            `https://api.discogs.com/database/search?barcode=${barcode11}`,
+            {
+              headers: {
+                Authorization: `Discogs token=${process.env.DISCOGS_API_TOKEN}`,
+              },
+            }
+          );
+
+          if (!res11.data || !res11.data.results) {
+            return res.status(500).json({ message: "Server error!" });
+          }
+
+          data.results = res11.data.results;
+        } else {
+          data.results = res10.data.results;
+        }
       } else return res.status(400).json({ message: "Incorrect UPC!" });
+    }
+
+    if (data.results.length === 0) {
+      return res.status(400).json({ message: "Incorrect UPC!" });
     }
 
     let productDetails = data.results.map((result) => {
@@ -1002,82 +1022,23 @@ const searchProducts = async (req, res) => {
     let after;
     const nodes = [];
 
-    while (true) {
-      let res;
-      try {
-        res = await shopifyClient.query({
-          data: `query {
-            productVariants(first: 250, query: "barcode:${barcode}"${
-            after ? `, after: "${after}"` : ""
-          }) {
-              edges {
-                node {
-                  price
-                  inventoryQuantity
-                  inventoryItem {
-                    measurement {
-                      weight {
-                        unit
-                        value
-                      }
-                    }
-                  }
-                  product {
-                    id
-                    title
-                    bodyHtml
-                    productType
-                    tags
-                    images(first: 100) {
-                      nodes {
-                        src
-                      }
-                    }
-                    vendor
-                    metafields(first: 100, keys: [${metafields
-                      .map(({ key }) => `"custom.${key}"`)
-                      .join(", ")}]) {
-                      edges {
-                        node {
-                          key
-                          value
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-              pageInfo {
-                hasNextPage
-                endCursor
-              }
-            }
-          }`,
-        });
-      } catch (error) {
-        console.log("error: ", error);
-        return res.status(500).json({ message: "Please try again!" });
-      }
-      nodes.push(...res.body.data.productVariants.edges);
-
-      if (res.body.data.productVariants.pageInfo.hasNextPage) {
-        after = res.body.data.productVariants.pageInfo.endCursor;
-      } else {
-        break;
-      }
+    const barcodes = [barcode];
+    if (barcode.length === 12 || barcode.length === 11) {
+      barcodes.push(barcode.substring(1, 11));
     }
 
-    if (barcode.length === 12 || barcode.length === 11) {
-      const barcode10 = barcode.substring(1, 11);
+    if (barcode.length === 12) {
+      barcodes.push(barcode.substring(0, 11));
+    }
 
+    for (let barcode_ of barcodes) {
       after = null;
-
       while (true) {
         let res;
         try {
           res = await shopifyClient.query({
             data: `query {
-              productVariants(first: 250, query: "barcode:${barcode10}"${
+              productVariants(first: 250, query: "barcode:${barcode_}"${
               after ? `, after: "${after}"` : ""
             }) {
                 edges {
