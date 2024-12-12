@@ -826,6 +826,7 @@ const getProduct = async (req, res) => {
       .json({ message: "Wrong credentials! Please login again.." });
   }
   const productId = req.params.productId;
+  console.log(productId);
   let product = null;
   try {
     product = await shopify.product.get(productId);
@@ -852,6 +853,10 @@ const getProduct = async (req, res) => {
     return res.status(400).json({ message: "Incorrect product ID!" });
   }
 
+  // console.log("--------------------------------------------------");
+  // console.log(JSON.stringify(metafields, null, 2));
+  // console.log("--------------------------------------------------");
+
   let details = {};
   for (let field of detailFields) {
     details[field.name] = { ...field };
@@ -875,7 +880,10 @@ const getProduct = async (req, res) => {
       field.isMultiSelect &&
       typeof details[field.name]["value"] === "string"
     ) {
-      if (field.key === "tags")
+      // console.log(details[field.name]);
+      if (details[field.name]["value"] === "")
+        details[field.name]["value"] = [];
+      else if (field.key === "tags")
         details[field.name]["value"] = details[field.name]["value"].split(", ");
       else
         details[field.name]["value"] = JSON.parse(details[field.name]["value"]);
@@ -1195,7 +1203,10 @@ const searchProducts = async (req, res) => {
               (title === fields["custom.title"].node.value) === title) ||
             (box &&
               fields["custom.box_"] &&
-              fields["custom.box_"].node.value === box)
+              fields["custom.box_"].node.value
+                .split("/")
+                .map((num) => num.trim())
+                .includes(box))
           ) {
             productIds.push(node.id);
           }
