@@ -885,8 +885,15 @@ const getProduct = async (req, res) => {
         details[field.name]["value"] = [];
       else if (field.key === "tags")
         details[field.name]["value"] = details[field.name]["value"].split(", ");
-      else
-        details[field.name]["value"] = JSON.parse(details[field.name]["value"]);
+      else {
+        try {
+          details[field.name]["value"] = JSON.parse(
+            details[field.name]["value"]
+          );
+        } catch (error) {
+          details[field.name]["value"] = [];
+        }
+      }
     }
   }
   return res.json({ message: "Success!", details });

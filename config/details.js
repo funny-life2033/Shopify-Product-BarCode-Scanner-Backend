@@ -292,9 +292,9 @@ module.exports = [
     name: "type",
     key: "type",
     label: "Type",
-    type: "single_line_text_field",
+    type: "list.single_line_text_field",
     isMetafield: true,
-    // isMultiSelect: true,
+    isMultiSelect: true,
     options: [
       "LP",
       "Double LP",
