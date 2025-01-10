@@ -527,7 +527,9 @@ const updateProduct = async (req, res) => {
         }
       }
       break;
-    } catch (error) {}
+    } catch (error) {
+      console.log("getting product variants error:", error);
+    }
     await sleep(1000);
   }
   let metafields = [];
@@ -932,12 +934,17 @@ const getProducts = async (req, res) => {
           }))
         );
 
-        if (res.body.data.products.pageInfo.hasNextPage) {
+        if (
+          res.body.data.products.pageInfo.hasNextPage &&
+          res.body.data.products.nodes.length
+        ) {
           after = res.body.data.products.pageInfo.endCursor;
         } else {
           break;
         }
-      } catch (error) {}
+      } catch (error) {
+        console.log("getting products by searching word eror:", error);
+      }
     }
 
     return res.json({
@@ -970,6 +977,7 @@ const getProducts = async (req, res) => {
           });
           break;
         } catch (error) {
+          console.log("getting products by ids error:", error);
           await sleep(30000);
         }
       }
@@ -1101,12 +1109,15 @@ const searchProducts = async (req, res) => {
             }`,
           });
         } catch (error) {
-          console.log("error: ", error);
+          console.log("getting products by barcode error: ", error);
           return res.status(500).json({ message: "Please try again!" });
         }
         nodes.push(...res.body.data.productVariants.edges);
 
-        if (res.body.data.productVariants.pageInfo.hasNextPage) {
+        if (
+          res.body.data.productVariants.pageInfo.hasNextPage &&
+          res.body.data.productVariants.edges.length
+        ) {
           after = res.body.data.productVariants.pageInfo.endCursor;
         } else {
           break;
@@ -1187,7 +1198,10 @@ const searchProducts = async (req, res) => {
             }`,
         });
       } catch (error) {
-        console.log("getting products error:", error);
+        console.log(
+          "getting products with title and artist metafields error:",
+          error
+        );
         await sleep(30000);
       }
 
@@ -1220,7 +1234,10 @@ const searchProducts = async (req, res) => {
         }
       }
 
-      if (res.body.data.products.pageInfo.hasNextPage) {
+      if (
+        res.body.data.products.pageInfo.hasNextPage &&
+        res.body.data.products.edges.length
+      ) {
         after = res.body.data.products.pageInfo.endCursor;
       } else {
         break;
