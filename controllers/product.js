@@ -904,6 +904,7 @@ const getProduct = async (req, res) => {
 const getProducts = async (req, res) => {
   const { searchWord } = req.body;
   console.log("searching word:", searchWord);
+  console.log("start:", new Date().toLocaleTimeString());
 
   if (searchWord && searchWord !== "") {
     const products = [];
@@ -963,6 +964,7 @@ const getProducts = async (req, res) => {
     return res.json({ message: "Success!", products: [] });
   }
   let ids = uploadedProducts.map((product) => product.productId).slice(0, 20);
+  console.log("got ids:", new Date().toLocaleTimeString());
 
   try {
     let products = [];
@@ -985,12 +987,14 @@ const getProducts = async (req, res) => {
     }
 
     products.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    console.log("got uploaded products:", new Date().toLocaleTimeString());
 
     for (let product of uploadedProducts) {
       if (!products.find((p) => p.id.toString() === product.productId)) {
         await Product.findByIdAndDelete(product._id);
       }
     }
+    console.log("ended:", new Date().toLocaleTimeString());
 
     return res.json({ message: "Success!", products });
   } catch (error) {
