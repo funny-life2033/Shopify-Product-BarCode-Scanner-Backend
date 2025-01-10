@@ -962,7 +962,7 @@ const getProducts = async (req, res) => {
   if (uploadedProducts.length === 0) {
     return res.json({ message: "Success!", products: [] });
   }
-  let ids = uploadedProducts.map((product) => product.productId);
+  let ids = uploadedProducts.map((product) => product.productId).slice(0, 20);
 
   try {
     let products = [];
