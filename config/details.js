@@ -292,7 +292,7 @@ module.exports = [
   },
   {
     name: "size_",
-    key: "size",
+    key: "size_",
     label: "Size",
     type: "single_line_text_field",
     isMetafield: true,
