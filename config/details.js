@@ -225,7 +225,6 @@ module.exports = [
     options: ["Sealed", "NM", "EX", "VG++", "VG+", "VG", "New", "Used"],
     product_type: ["Vinyl", "CDs", "Cassettes", "LaserDisc", "Wholesale"],
   },
-  ,
   {
     name: "apparel_type",
     key: "apparel_type",
