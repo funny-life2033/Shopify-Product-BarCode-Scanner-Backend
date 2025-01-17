@@ -26,6 +26,7 @@ module.exports = [
       "Store Merch",
       "LaserDisc",
       "Wholesale",
+      "Apparel",
     ],
   },
   {
@@ -49,6 +50,7 @@ module.exports = [
       "LaserDisc",
       "Wholesale",
       "Vault",
+      "Apparel",
     ],
     product_type: "All",
   },
@@ -223,6 +225,15 @@ module.exports = [
     options: ["Sealed", "NM", "EX", "VG++", "VG+", "VG", "New", "Used"],
     product_type: ["Vinyl", "CDs", "Cassettes", "LaserDisc", "Wholesale"],
   },
+  ,
+  {
+    name: "apparel_type",
+    key: "apparel_type",
+    label: "Apparel Type",
+    type: "single_line_text_field",
+    isMetafield: true,
+    product_type: ["Vintage", "Apparel"],
+  },
   {
     name: "art_type",
     key: "art_type",
@@ -279,6 +290,14 @@ module.exports = [
     isMetafield: true,
     options: ['12"', '10"', '7"'],
     product_type: ["Vinyl"],
+  },
+  {
+    name: "size_",
+    key: "size",
+    label: "Size",
+    type: "single_line_text_field",
+    isMetafield: true,
+    product_type: ["Vintage", "Apparel"],
   },
   {
     name: "dimensions",
@@ -483,6 +502,7 @@ module.exports = [
       "Collectibles",
       "Store Merch",
       "LaserDisc",
+      "Apparel",
     ],
   },
   {
