@@ -36,6 +36,7 @@ module.exports = [
     type: "list.single_line_text_field",
     isMultiSelect: true,
     options: [
+      "Unofficial",
       "Vinyl",
       "Blank Media",
       "CDs",
