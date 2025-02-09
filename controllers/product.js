@@ -989,11 +989,11 @@ const getProducts = async (req, res) => {
     products.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
     console.log("got uploaded products:", new Date().toLocaleTimeString());
 
-    for (let product of uploadedProducts) {
-      if (!products.find((p) => p.id.toString() === product.productId)) {
-        await Product.findByIdAndDelete(product._id);
-      }
-    }
+    // for (let product of uploadedProducts) {
+    //   if (!products.find((p) => p.id.toString() === product.productId)) {
+    //     await Product.findByIdAndDelete(product._id);
+    //   }
+    // }
     console.log("ended:", new Date().toLocaleTimeString());
 
     return res.json({ message: "Success!", products });
