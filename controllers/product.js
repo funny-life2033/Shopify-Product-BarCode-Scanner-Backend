@@ -17,6 +17,7 @@ require("dotenv").config();
 const shopify = new Shopify({
   shopName: process.env.SHOP_NAME,
   accessToken: process.env.SHOPIFY_API_TOKEN,
+  timeout: 300000,
 });
 
 const shopifyGraphql = shopifyApi({
@@ -307,7 +308,7 @@ const upload = async (req, res) => {
 
   let successed = [];
   let failed = [];
-
+  console.log(new Date().toLocaleTimeString(), "uploading started");
   for (let details of productDetailsList) {
     let creatingData = {
       metafields: [
@@ -414,11 +415,12 @@ const upload = async (req, res) => {
       //   "utf8"
       // );
     } catch (error) {
-      console.log("error: ", error);
+      console.log("uploading error: ", error);
       failed.push({ discogsId: details.id });
     }
   }
 
+  console.log(new Date().toLocaleTimeString(), "uploading ended");
   return res.json({
     message: `${successed.length} products have been successfully uploaded!`,
     successed,
