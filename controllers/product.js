@@ -834,6 +834,8 @@ const getProduct = async (req, res) => {
     product = await shopify.product.get(productId);
   } catch (error) {
     console.log("product error: ", error);
+    if (error.response.status === 409)
+      return res.status(409).json({ message: "Too many requests" });
     return res.status(400).json({ message: "Incorrect product ID!" });
   }
   let metafields = [];
@@ -928,12 +930,23 @@ const getProducts = async (req, res) => {
           }`,
         });
 
-        products.push(
-          ...res.body.data.products.nodes.map((product) => ({
-            id: product.id.split("/Product/")[1],
-            title: product.title,
-          }))
-        );
+        for (let product of res.body.data.products.nodes) {
+          let words = searchWord.toLocaleLowerCase().split(" ");
+          let title = product.title.toLocaleLowerCase();
+          let isIncluded = true;
+          for (let word of words) {
+            if (!title.includes(word)) {
+              isIncluded = false;
+              break;
+            }
+          }
+          if (isIncluded) {
+            products.push({
+              id: product.id.split("/Product/")[1],
+              title: product.title,
+            });
+          }
+        }
 
         if (
           res.body.data.products.pageInfo.hasNextPage &&
