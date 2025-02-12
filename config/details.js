@@ -27,6 +27,7 @@ module.exports = [
       "LaserDisc",
       "Wholesale",
       "Apparel",
+      "8-Track",
     ],
   },
   {
@@ -52,6 +53,7 @@ module.exports = [
       "Wholesale",
       "Vault",
       "Apparel",
+      "8-Track",
     ],
     product_type: "All",
   },
@@ -160,6 +162,7 @@ module.exports = [
       "Art",
       "LaserDisc",
       "Wholesale",
+      "8-Track",
     ],
   },
   {
@@ -183,6 +186,7 @@ module.exports = [
       "Art",
       "LaserDisc",
       "Wholesale",
+      "8-Track",
     ],
   },
   {
@@ -214,7 +218,14 @@ module.exports = [
       "Doo-Wop",
       "Religious",
     ],
-    product_type: ["Vinyl", "CDs", "Cassettes", "LaserDisc", "Wholesale"],
+    product_type: [
+      "Vinyl",
+      "CDs",
+      "Cassettes",
+      "LaserDisc",
+      "Wholesale",
+      "8-Track",
+    ],
   },
   {
     name: "vinyl_grade",
@@ -224,7 +235,14 @@ module.exports = [
     isMetafield: true,
     isMultiSelect: true,
     options: ["Sealed", "NM", "EX", "VG++", "VG+", "VG", "New", "Used"],
-    product_type: ["Vinyl", "CDs", "Cassettes", "LaserDisc", "Wholesale"],
+    product_type: [
+      "Vinyl",
+      "CDs",
+      "Cassettes",
+      "LaserDisc",
+      "Wholesale",
+      "8-Track",
+    ],
   },
   {
     name: "apparel_type",
@@ -289,7 +307,7 @@ module.exports = [
     type: "single_line_text_field",
     isMetafield: true,
     options: ['12"', '10"', '7"'],
-    product_type: ["Vinyl"],
+    product_type: ["Vinyl", "8-Track"],
   },
   {
     name: "size_",
@@ -324,7 +342,7 @@ module.exports = [
       "Maxi-Single",
       "Mini LP",
     ],
-    product_type: ["Vinyl"],
+    product_type: ["Vinyl", "8-Track"],
   },
   {
     name: "speed",
@@ -334,7 +352,7 @@ module.exports = [
     isMetafield: true,
     isMultiSelect: true,
     options: ["33 RPM", "45 RPM", "78 RPM"],
-    product_type: ["Vinyl"],
+    product_type: ["Vinyl", "8-Track"],
   },
   {
     name: "catalog",
@@ -342,7 +360,14 @@ module.exports = [
     label: "Catalog #",
     type: "single_line_text_field",
     isMetafield: true,
-    product_type: ["Vinyl", "CDs", "Cassettes", "LaserDisc", "Wholesale"],
+    product_type: [
+      "Vinyl",
+      "CDs",
+      "Cassettes",
+      "LaserDisc",
+      "Wholesale",
+      "8-Track",
+    ],
   },
   {
     name: "record_label",
@@ -350,7 +375,14 @@ module.exports = [
     label: "Record Label",
     type: "single_line_text_field",
     isMetafield: true,
-    product_type: ["Vinyl", "CDs", "Cassettes", "LaserDisc", "Wholesale"],
+    product_type: [
+      "Vinyl",
+      "CDs",
+      "Cassettes",
+      "LaserDisc",
+      "Wholesale",
+      "8-Track",
+    ],
   },
   {
     name: "genre",
@@ -465,7 +497,14 @@ module.exports = [
     label: "Country of Manufacture",
     type: "single_line_text_field",
     isMetafield: true,
-    product_type: ["Vinyl", "CDs", "Cassettes", "LaserDisc", "Wholesale"],
+    product_type: [
+      "Vinyl",
+      "CDs",
+      "Cassettes",
+      "LaserDisc",
+      "Wholesale",
+      "8-Track",
+    ],
   },
   {
     name: "autographed",
@@ -481,6 +520,7 @@ module.exports = [
       "Books",
       "LaserDisc",
       "Wholesale",
+      "8-Track",
     ],
   },
   {
@@ -503,6 +543,7 @@ module.exports = [
       "Store Merch",
       "LaserDisc",
       "Apparel",
+      "8-Track",
     ],
   },
   {
