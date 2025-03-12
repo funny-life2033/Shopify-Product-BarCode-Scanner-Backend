@@ -1036,7 +1036,7 @@ const getProducts = async (req, res) => {
     return res.json({ message: "Success!", products: [] });
   }
   let ids = uploadedProducts.map((product) => product.productId).slice(-20);
-  console.log("got ids:", new Date().toLocaleTimeString());
+  console.log("got ids:", ids.length, new Date().toLocaleTimeString());
 
   try {
     let products = [];
@@ -1048,7 +1048,7 @@ const getProducts = async (req, res) => {
           ids: ids.slice(i * 250, i * 250 + 250).join(","),
           limit: 250,
         });
-        break;
+        console.log("found", newProducts.length);
       } catch (error) {
         console.log("getting products by ids error:", error);
         await sleep(30000);
@@ -1057,7 +1057,11 @@ const getProducts = async (req, res) => {
     }
 
     products.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-    console.log("got uploaded products:", new Date().toLocaleTimeString());
+    console.log(
+      "got uploaded products:",
+      products.length,
+      new Date().toLocaleTimeString()
+    );
 
     // for (let product of uploadedProducts) {
     //   if (!products.find((p) => p.id.toString() === product.productId)) {
