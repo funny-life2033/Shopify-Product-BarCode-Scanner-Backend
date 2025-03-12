@@ -517,22 +517,18 @@ const updateProduct = async (req, res) => {
   let updatingData = {
     variants: [{ inventory_management: "shopify" }],
   };
-  while (true) {
-    try {
-      let variants = (await shopify.product.get(productId, "variants"))[
-        "variants"
-      ][0];
+  try {
+    let variants = (await shopify.product.get(productId, "variants"))[
+      "variants"
+    ][0];
 
-      for (let field of detailFields) {
-        if (field.isVariants) {
-          updatingData.variants[0][field.name] = variants[field.key];
-        }
+    for (let field of detailFields) {
+      if (field.isVariants) {
+        updatingData.variants[0][field.name] = variants[field.key];
       }
-      break;
-    } catch (error) {
-      console.log("getting product variants error:", error);
     }
-    await sleep(1000);
+  } catch (error) {
+    console.log("getting product variants error:", error);
   }
   let metafields = [];
   let deletingMetafields = [];
@@ -986,17 +982,15 @@ const getProducts = async (req, res) => {
 
     for (let i = 0; i < Math.ceil(ids.length / 250); i++) {
       let newProducts;
-      while (true) {
-        try {
-          newProducts = await shopify.product.list({
-            ids: ids.slice(i * 250, i * 250 + 250).join(","),
-            limit: 250,
-          });
-          break;
-        } catch (error) {
-          console.log("getting products by ids error:", error);
-          await sleep(30000);
-        }
+      try {
+        newProducts = await shopify.product.list({
+          ids: ids.slice(i * 250, i * 250 + 250).join(","),
+          limit: 250,
+        });
+        break;
+      } catch (error) {
+        console.log("getting products by ids error:", error);
+        await sleep(30000);
       }
       products = [...products, ...newProducts];
     }
@@ -1265,63 +1259,59 @@ const searchProducts = async (req, res) => {
 
     for (let i = 0; i < Math.ceil(productIds.length / 250); i++) {
       let res;
-      while (true) {
-        try {
-          res = await shopifyClient.query({
-            data: `query {
-              ${productIds
-                .slice(i * 250, i * 250 + 250)
-                .map(
-                  (id) => `Product_${
-                    id.split("Product/")[1]
-                  }: product(id: "${id}") {
-                id
-                title
-                bodyHtml
-                productType
-                tags
-                images(first: 100) {
-                  nodes {
-                    src
-                  }
+      try {
+        res = await shopifyClient.query({
+          data: `query {
+            ${productIds
+              .slice(i * 250, i * 250 + 250)
+              .map(
+                (id) => `Product_${
+                  id.split("Product/")[1]
+                }: product(id: "${id}") {
+              id
+              title
+              bodyHtml
+              productType
+              tags
+              images(first: 100) {
+                nodes {
+                  src
                 }
-                vendor
-                variants(first: 1) {
-                  nodes {
-                    barcode
-                    price
-                    inventoryQuantity
-                    inventoryItem {
-                      measurement {
-                        weight {
-                          unit
-                          value
-                        }
+              }
+              vendor
+              variants(first: 1) {
+                nodes {
+                  barcode
+                  price
+                  inventoryQuantity
+                  inventoryItem {
+                    measurement {
+                      weight {
+                        unit
+                        value
                       }
                     }
                   }
                 }
-                metafields(first: 100, keys: [${metafields
-                  .map(({ key }) => `"custom.${key}"`)
-                  .join(", ")}]) {
-                  edges {
-                    node {
-                      key
-                      value
-                    }
+              }
+              metafields(first: 100, keys: [${metafields
+                .map(({ key }) => `"custom.${key}"`)
+                .join(", ")}]) {
+                edges {
+                  node {
+                    key
+                    value
                   }
                 }
-              }`
-                )
-                .join(`\n\n`)}
-            }`,
-          });
-
-          break;
-        } catch (error) {
-          console.log("getting products error:", error);
-          await sleep(30000);
-        }
+              }
+            }`
+              )
+              .join(`\n\n`)}
+          }`,
+        });
+      } catch (error) {
+        console.log("getting products error:", error);
+        await sleep(30000);
       }
 
       for (let id of Object.keys(res.body.data)) {
