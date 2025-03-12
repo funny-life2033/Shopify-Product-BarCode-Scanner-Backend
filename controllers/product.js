@@ -14,29 +14,6 @@ const { createCanvas, loadImage } = require("canvas");
 require("@shopify/shopify-api/adapters/node");
 require("dotenv").config();
 
-const shopify = new Shopify({
-  shopName: process.env.SHOP_NAME,
-  accessToken: process.env.SHOPIFY_API_TOKEN,
-  timeout: 300000,
-});
-
-const shopifyGraphql = shopifyApi({
-  apiKey: process.env.SHOPIFY_API_KEY,
-  apiSecretKey: process.env.SHOPIFY_API_SECRET_KEY,
-  adminApiAccessToken: process.env.SHOPIFY_API_TOKEN,
-  hostName: `${process.env.SHOP_NAME}.myshopify.com`,
-  isCustomStoreApp: true,
-  scopes: ["read_products", "write_products", "read_inventory"],
-});
-
-const session = shopifyGraphql.session.customAppSession(
-  `${process.env.SHOP_NAME}.myshopify.com`
-);
-
-const shopifyClient = new shopifyGraphql.clients.Graphql({
-  session,
-});
-
 const drawRoundedRect = (ctx, x, y, width, height, radius) => {
   ctx.beginPath();
   ctx.moveTo(x + radius, y); // Move to the top-left corner
@@ -299,6 +276,12 @@ const getDetails = async (req, res) => {
 };
 
 const upload = async (req, res) => {
+  const shopify = new Shopify({
+    shopName: process.env.SHOP_NAME,
+    accessToken: process.env.SHOPIFY_API_TOKEN,
+    timeout: 300000,
+  });
+
   const productDetailsList = req.body;
 
   const authHeader = req.get("Authorization");
@@ -429,6 +412,12 @@ const upload = async (req, res) => {
 };
 
 const updateProductOld = async (req, res) => {
+  const shopify = new Shopify({
+    shopName: process.env.SHOP_NAME,
+    accessToken: process.env.SHOPIFY_API_TOKEN,
+    timeout: 300000,
+  });
+
   const productId = req.params.productId;
   const { key, detail } = req.body;
 
@@ -506,6 +495,28 @@ const updateProductOld = async (req, res) => {
 };
 
 const updateProduct = async (req, res) => {
+  const shopify = new Shopify({
+    shopName: process.env.SHOP_NAME,
+    accessToken: process.env.SHOPIFY_API_TOKEN,
+    timeout: 300000,
+  });
+
+  const shopifyGraphql = shopifyApi({
+    apiKey: process.env.SHOPIFY_API_KEY,
+    apiSecretKey: process.env.SHOPIFY_API_SECRET_KEY,
+    adminApiAccessToken: process.env.SHOPIFY_API_TOKEN,
+    hostName: `${process.env.SHOP_NAME}.myshopify.com`,
+    isCustomStoreApp: true,
+    scopes: ["read_products", "write_products", "read_inventory"],
+  });
+
+  const session = shopifyGraphql.session.customAppSession(
+    `${process.env.SHOP_NAME}.myshopify.com`
+  );
+
+  const shopifyClient = new shopifyGraphql.clients.Graphql({
+    session,
+  });
   const productId = req.params.productId;
   const {
     productDetails,
@@ -742,6 +753,28 @@ const updateProduct = async (req, res) => {
 };
 
 const duplicateProduct = async (req, res) => {
+  const shopify = new Shopify({
+    shopName: process.env.SHOP_NAME,
+    accessToken: process.env.SHOPIFY_API_TOKEN,
+    timeout: 300000,
+  });
+
+  const shopifyGraphql = shopifyApi({
+    apiKey: process.env.SHOPIFY_API_KEY,
+    apiSecretKey: process.env.SHOPIFY_API_SECRET_KEY,
+    adminApiAccessToken: process.env.SHOPIFY_API_TOKEN,
+    hostName: `${process.env.SHOP_NAME}.myshopify.com`,
+    isCustomStoreApp: true,
+    scopes: ["read_products", "write_products", "read_inventory"],
+  });
+
+  const session = shopifyGraphql.session.customAppSession(
+    `${process.env.SHOP_NAME}.myshopify.com`
+  );
+
+  const shopifyClient = new shopifyGraphql.clients.Graphql({
+    session,
+  });
   const authHeader = req.get("Authorization");
   const token = authHeader.split(" ")[1];
   const decodedToken = jwt.verify(token, "secret");
@@ -816,6 +849,12 @@ const getProductStructure = async (req, res) => {
 };
 
 const getProduct = async (req, res) => {
+  const shopify = new Shopify({
+    shopName: process.env.SHOP_NAME,
+    accessToken: process.env.SHOPIFY_API_TOKEN,
+    timeout: 300000,
+  });
+
   const authHeader = req.get("Authorization");
   const token = authHeader.split(" ")[1];
   const { username } = jwt.verify(token, "secret");
@@ -902,6 +941,28 @@ const getProduct = async (req, res) => {
 };
 
 const getProducts = async (req, res) => {
+  const shopify = new Shopify({
+    shopName: process.env.SHOP_NAME,
+    accessToken: process.env.SHOPIFY_API_TOKEN,
+    timeout: 300000,
+  });
+
+  const shopifyGraphql = shopifyApi({
+    apiKey: process.env.SHOPIFY_API_KEY,
+    apiSecretKey: process.env.SHOPIFY_API_SECRET_KEY,
+    adminApiAccessToken: process.env.SHOPIFY_API_TOKEN,
+    hostName: `${process.env.SHOP_NAME}.myshopify.com`,
+    isCustomStoreApp: true,
+    scopes: ["read_products", "write_products", "read_inventory"],
+  });
+
+  const session = shopifyGraphql.session.customAppSession(
+    `${process.env.SHOP_NAME}.myshopify.com`
+  );
+
+  const shopifyClient = new shopifyGraphql.clients.Graphql({
+    session,
+  });
   const { searchWord } = req.body;
   console.log("searching word:", searchWord);
   console.log("start:", new Date().toLocaleTimeString());
@@ -1028,6 +1089,12 @@ const getProductsCount = async (req, res) => {
 };
 
 const removeProduct = async (req, res) => {
+  const shopify = new Shopify({
+    shopName: process.env.SHOP_NAME,
+    accessToken: process.env.SHOPIFY_API_TOKEN,
+    timeout: 300000,
+  });
+
   const productId = req.params.productId;
 
   try {
@@ -1049,6 +1116,22 @@ const getWholesaleTitle = async (_, res) => {
 };
 
 const searchProducts = async (req, res) => {
+  const shopifyGraphql = shopifyApi({
+    apiKey: process.env.SHOPIFY_API_KEY,
+    apiSecretKey: process.env.SHOPIFY_API_SECRET_KEY,
+    adminApiAccessToken: process.env.SHOPIFY_API_TOKEN,
+    hostName: `${process.env.SHOP_NAME}.myshopify.com`,
+    isCustomStoreApp: true,
+    scopes: ["read_products", "write_products", "read_inventory"],
+  });
+
+  const session = shopifyGraphql.session.customAppSession(
+    `${process.env.SHOP_NAME}.myshopify.com`
+  );
+
+  const shopifyClient = new shopifyGraphql.clients.Graphql({
+    session,
+  });
   const { barcode, title, artist, box } = req.body;
   // if (box && box !== "") {
   let products = [];
